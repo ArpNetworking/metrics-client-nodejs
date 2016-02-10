@@ -1,6 +1,14 @@
 language: node_js
 node_js:
-  - '0.10'
-  - '0.12'
-  - '4'
-  - '5'
+- '0.10'
+- '0.12'
+- '4'
+- '5'
+deploy:
+  provider: npm
+  on:
+    tags: true
+    node: '0.12'
+    condition: "$TRAVIS_TAG =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+  api_key:
+    secure: b1IWUnX3MUMR+f6HsYnJtz6K6WiHcE/9DxiYf1d/Q2jN9XUo/VLceGC8VAMRQ9kMFpONcQLJl8ZTY5Mo65/JSE5cXebiR1iMff//5dr2uc3OHG71j6aiIM2UTbiM66My82FxDQG9S/80ardu1Sm+3yNMWb1vTqT3Psx7YcacWEBOe/WbCJxIgc3jCy+7Yrnq7fcpJZTIG4R/lcKlaK5W+Q5QcFw1zC9WdLbJAlfHYRiz0e2/2NX+JX5iXKoBpRgtsc++Nqy5v6LDbO/njkdSrkSnYHaW4UiC6rPySIR8EluOQA8PD6wFims1evV0urBTtEzXLSLa2y1/RmsHzmgUVWusCWbYZ5zwtsHB5d9gQ6kguq72xSV/16hG6WCxtDUc724z63lDOUZgPyF8Lbmtl1JWVylm74RRi1hurXN4v30xMkKNsN+tiYMpfexw7FDIkvSt6OD0GmSztP7MNh6Iq1c0kH3g21/EgD9agQAK7I2fTnp5sHJb5mRLVqQnhpmFdGUcYjrFR5kkD/4qn6+mgYuyktC9Zg7QW8WR3ge8A9vJsBOZLVLRxBhKFHHuub/qcXZTkKSqmU9ZtaE8nCiECXz4kxsLl7MuumKOXewY6Wn9ldJkux407Ve2GbrCwnZk1NM9KLah0VSBHiMmrPspdqLC2TZQ1z/BXSBF+jncZXM=
