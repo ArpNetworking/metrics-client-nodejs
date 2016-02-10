@@ -18,13 +18,30 @@ var util = require("util");
 var tsd = require("../lib/tsd-metrics-client");
 var assert = require("chai").assert;
 var testCommon = require("./test-common");
-var log_schema = require('../../doc/query-log-schema-2e.json');
-var JaySchema = require('jayschema');
+var request = require("request");
+var JaySchema = require("jayschema");
 var fs = require("fs");
 var TEST_LOGFILE_NAME = "test-tsd-query.log";
 if (fs.existsSync(TEST_LOGFILE_NAME)) {
     fs.unlinkSync(TEST_LOGFILE_NAME);
 }
+
+
+var log_schema = null;
+
+before(function(done) {
+    this.timeout(4000);
+    // Get query log schema
+    request({
+        url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-schema-2e.json",
+        json: true
+    }, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+            log_schema = body;
+        }
+        done();
+    })
+});
 
 var schemaValidator = new JaySchema();
 
