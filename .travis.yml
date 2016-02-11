@@ -6,6 +6,7 @@ node_js:
 - '5'
 deploy:
   provider: npm
+  email: "brandon+npm@arpnetworking.com"
   on:
     tags: true
     node: '0.12'
