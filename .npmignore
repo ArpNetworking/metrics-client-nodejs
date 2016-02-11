@@ -7,3 +7,4 @@ login_info
 test-tsd-query.log.*
 *.log
 xunit.xml
+.travis.yml
