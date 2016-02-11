@@ -21,7 +21,11 @@ var testCommon = require("./test-common");
 var request = require("request");
 var JaySchema = require("jayschema");
 var fs = require("fs");
+var path = require("path");
+
+var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-schema-2e.json");
 var TEST_LOGFILE_NAME = "test-tsd-query.log";
+
 if (fs.existsSync(TEST_LOGFILE_NAME)) {
     fs.unlinkSync(TEST_LOGFILE_NAME);
 }
@@ -31,15 +35,33 @@ var log_schema = null;
 
 before(function(done) {
     this.timeout(4000);
-    // Get query log schema
-    request({
-        url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-schema-2e.json",
-        json: true
-    }, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-            log_schema = body;
+    // Check for cached schema locally
+    fs.readFile(SCHEMA_CACHE_PATH, {encoding: 'utf8'}, function(err, data) {
+        if (err == null) {
+            log_schema = JSON.parse(data);
+            done();
+            return;
         }
-        done();
+
+        // Fetch query log schema
+        request({
+            url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-schema-2e.json",
+            json: true
+        }, function(err, response, body) {
+            if (err != null) {
+                throw err;
+            }
+            if (response.statusCode !== 200) {
+                throw new Error("Failed to fetch query schema from github");
+            }
+            log_schema = body;
+            fs.writeFile(SCHEMA_CACHE_PATH, JSON.stringify(body), function(err) {
+                if (err != null) {
+                    throw err;
+                }
+                done();
+            })
+        })
     })
 });
 
