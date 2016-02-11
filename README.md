@@ -199,6 +199,15 @@ Install the current version locally:
 
 Using the local version is intended only for testing or development. 
 
+Release
+-------
+
+As a collaborator, to release a new version, perform the following:
+
+    > npm version patch|minor|major
+
+Travis will build and release the new version to npmjs.org .
+
 License
 -------
 

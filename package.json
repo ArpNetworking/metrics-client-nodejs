@@ -5,7 +5,8 @@
   "description": "Node JS class for publishing metrics as time series data (TSD).",
   "scripts": {
     "prepublish": "grunt",
-    "test": "grunt cover --mochaReporter=xunit-file"
+    "test": "grunt cover --mochaReporter=xunit-file",
+    "postversion": "git push && git push --tags"
   },
   "publishConfig": {
     "registry": "http://npm-registry.snc1"
