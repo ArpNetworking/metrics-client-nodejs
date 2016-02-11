@@ -8,9 +8,6 @@
     "test": "grunt cover --mochaReporter=xunit-file",
     "postversion": "git push && git push --tags"
   },
-  "publishConfig": {
-    "registry": "http://npm-registry.snc1"
-  },
   "main": "./lib/tsd-metrics-client",
   "repository": {
     "type": "git",
