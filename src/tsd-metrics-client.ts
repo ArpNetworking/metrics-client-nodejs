@@ -308,7 +308,7 @@ export class TsdMetrics implements tsdDef.Metrics {
         if (this._metricsStateObject.assertIsOpen()) {
             if (!errors.assertDefined(unit,
                 "No unit specified for explicit timer. Assuming millisecond.")) {
-                unit = Units.MILLISECOND;
+                unit = Units["MILLISECOND"];
             }
             this.getOrCreateTimerSamples(name).addExplicitTimer(duration, unit);
         }
@@ -363,7 +363,7 @@ export class TsdMetrics implements tsdDef.Metrics {
             //filter out unstopped timers
             for (var timerName in metricsEvent.timers) {
                 metricsEvent.timers[timerName] =
-                    metricsEvent.timers[timerName].filter((t) => {
+                    metricsEvent.timers[timerName].filter((t:tsdDef.Timer) => {
                         if (t.isStopped()) {
                             return true
                         } else {
