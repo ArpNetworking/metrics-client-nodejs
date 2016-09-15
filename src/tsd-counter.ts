@@ -17,6 +17,7 @@
 
 import tsdDef = require("tsdDef");
 import tsd = require("tsd-metrics-client");
+import metrics = require("tsd-metrics");
 import sample = require("./tsd-metric-sample");
 
 //aliases
@@ -49,7 +50,7 @@ export class TsdCounter extends TsdMetricSample implements tsdDef.Counter {
      * @param {MetricsStateObject} _metricsStateObject Object holding state of the parent metrics object.
      * @ignore
      */
-    constructor(private _name:string, private _metricsStateObject:tsd.MetricsStateObject) {
+    constructor(private _name:string, private _metricsStateObject:metrics.MetricsStateObject) {
         super(0, undefined);
     }
 

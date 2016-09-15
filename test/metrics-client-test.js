@@ -16,6 +16,7 @@
 
 var util = require("util");
 var tsd = require("../lib/tsd-metrics-client");
+var metrics = require("../lib/tsd-metrics");
 var assert = require("chai").assert;
 var expect = require("chai").expect;
 var fs = require("fs");
@@ -36,8 +37,10 @@ if (testCommon.verbose) {
   metricsTestSinks.push(tsd.Sinks.createConsoleSink());
 }
 
+var metricsFactory = new tsd.TsdMetricsFactory(metricsTestSinks);
+
 function createMetrics() {
-  return new tsd.TsdMetrics();
+  return metricsFactory.create();
 }
 
 var errorArr = [];
@@ -56,7 +59,7 @@ function clearErrors() {
 describe('TsdMetrics', function() {
   beforeEach(function() {
     clearErrors();
-    tsd.init(metricsTestSinks);
+    metricsFactory = new tsd.TsdMetricsFactory(metricsTestSinks);
   });
   afterEach(function() {
     if (!skipErrorValidation) {
@@ -65,6 +68,24 @@ describe('TsdMetrics', function() {
       }
     }
   });
+  describe('Legacy initialization', function() {
+    it('should initialize the sinks properly', function() {
+      var m = createMetrics();
+      tsd.init(metricsTestSinks);
+      var helloCounter = Math.floor(Math.random() * 50.0);
+
+      testCommon.print("increment counter 'hello' by " + helloCounter);
+      m.incrementCounter("hello", helloCounter);
+
+      testCommon.print("increment counter 'hello' by 1");
+      m.incrementCounter("hello");
+
+      m.close();
+      assert.counter(emittedMetricEvent.counters.hello.getValues()[0], helloCounter + 1,
+          "increment counter happy case failed");
+    })
+  });
+
   describe('Verify Exports', function() {
     it('should export correctly with or without parameters passed to require() ', function(done) {
       var tsdTestNoParams = require("../lib/tsd-metrics-client");
@@ -86,8 +107,8 @@ describe('TsdMetrics', function() {
         LOG_FILE_NAME: "test-tsd-query.log"
       });
 
-      assert.instanceOf(tsd.init._sinks[0], tsd.Sinks.createQueryLogSink().constructor);
-      assert.instanceOf(tsd.init._sinks[1], tsd.Sinks.createConsoleSink().constructor);
+      assert.instanceOf(metrics._globalSinks[0], tsd.Sinks.createQueryLogSink().constructor);
+      assert.instanceOf(metrics._globalSinks[1], tsd.Sinks.createConsoleSink().constructor);
 
       assert.isDefined(tsdTestWithParams);
       assert.isDefined(tsdTestWithParams.TsdMetrics);
@@ -336,9 +357,6 @@ describe('TsdMetrics', function() {
     });
 
     it('should report error if a sink failed', function(done) {
-      var m = createMetrics();
-      var errMsg = "LOGGER ERROR";
-
       function FaultySink() {}
 
       util.inherits(FaultySink, tsd.Sink);
@@ -346,14 +364,14 @@ describe('TsdMetrics', function() {
       FaultySink.prototype.record = function(metricsEvent) {
         throw new Error(errMsg);
       };
-
-      tsd.init([new FaultySink()]);
+      metricsFactory = new tsd.TsdMetricsFactory([new FaultySink()]);
+      var m = createMetrics();
+      var errMsg = "LOGGER ERROR";
 
       testCommon.print("close the metrics object");
       m.createCounter("TEST");
       m.close();
 
-      tsd.init(metricsTestSinks);
       assert.lengthOf(errorArr, 1, "unexpected count of errors");
       assert.include(errorArr[0].toString(), "FaultySink");
       assert.include(errorArr[0].toString(), errMsg);
@@ -362,9 +380,6 @@ describe('TsdMetrics', function() {
     });
 
     it('should report error correctly from sinks', function(done) {
-      var m = createMetrics();
-      var errMsg = "LOGGER ERROR";
-
       function ErrorReportingSink() {}
 
       util.inherits(ErrorReportingSink, tsd.Sink);
@@ -372,14 +387,14 @@ describe('TsdMetrics', function() {
       ErrorReportingSink.prototype.record = function(metricsEvent) {
         throw new Error(errMsg);
       };
-
-      tsd.init([new ErrorReportingSink()]);
+      metricsFactory = new tsd.TsdMetricsFactory([new ErrorReportingSink()]);
+      var m = createMetrics();
+      var errMsg = "LOGGER ERROR";
 
       testCommon.print("close the metrics object");
       m.createCounter("TEST");
       m.close();
 
-      tsd.init(metricsTestSinks);
       assert.lengthOf(errorArr, 1, "unexpected count of errors");
       assert.include(errorArr[0].toString(), "ErrorReportingSink");
       assert.include(errorArr[0].toString(), errMsg);

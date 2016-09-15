@@ -109,7 +109,7 @@ export class TsdQueryLogSink implements tsdDef.Sink {
             hash.timers = metricsEvent.timers;
         }
 
-        hash.version = "2e";
+        hash.version = "2f";
         return hash;
     }
 }

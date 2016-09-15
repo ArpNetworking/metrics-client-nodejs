@@ -19,13 +19,14 @@ import tsdDef = require("tsdDef");
 import timers = require("./tsd-timer");
 import utils = require("./utils");
 import tsd = require("tsd-metrics-client");
+import metrics = require("tsd-metrics");
 import sample = require("./tsd-metric-sample");
 import metricsList = require("./tsd-metrics-list");
 
 //aliases
 import TsdTimer = timers.TsdTimer;
 import ExplicitTimer = timers.ExplicitTimer;
-import MetricsStateObject = tsd.MetricsStateObject;
+import MetricsStateObject = metrics.MetricsStateObject;
 import TsdMetricSample = sample.TsdMetricSample;
 import TsdMetricsList = metricsList.TsdMetricsList;
 

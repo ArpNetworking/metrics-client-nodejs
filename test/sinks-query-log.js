@@ -23,7 +23,7 @@ var JaySchema = require("jayschema");
 var fs = require("fs");
 var path = require("path");
 
-var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-schema-2e.json");
+var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-schema-2f.json");
 var TEST_LOGFILE_NAME = "test-tsd-query.log";
 
 if (fs.existsSync(TEST_LOGFILE_NAME)) {
@@ -45,7 +45,7 @@ before(function(done) {
 
         // Fetch query log schema
         request({
-            url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-schema-2e.json",
+            url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-schema-2f.json",
             json: true
         }, function(err, response, body) {
             if (err != null) {

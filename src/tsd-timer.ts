@@ -18,6 +18,7 @@
 ///<reference path='defs/metrics.d.ts'/>
 import tsdDef = require("tsdDef");
 import tsd = require("tsd-metrics-client");
+import metrics = require("tsd-metrics");
 import tsdUtils = require("./utils");
 import sample = require("./tsd-metric-sample");
 import units = require("./tsd-units");
@@ -53,7 +54,7 @@ export class TsdTimer extends TsdMetricSample implements tsdDef.Timer {
      * @param {MetricsStateObject} _metricsStateObject Object holding state of the parent metrics object.
      * @ignore
      */
-    constructor(private _name:string, private _metricsStateObject:tsd.MetricsStateObject) {
+    constructor(private _name:string, private _metricsStateObject:metrics.MetricsStateObject) {
         super(0, Units.NANOSECOND)
     }
 
@@ -108,7 +109,7 @@ export class ExplicitTimer extends TsdMetricSample implements tsdDef.Timer {
         duration:number,
         unit:tsdDef.Unit,
         private _name:string,
-        private _metricsStateObject:tsd.MetricsStateObject) {
+        private _metricsStateObject:metrics.MetricsStateObject) {
         super(duration, unit);
     }
 

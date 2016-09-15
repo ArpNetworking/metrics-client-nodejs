@@ -42,6 +42,20 @@ declare module "tsdDef" {
     }
 
     /**
+     * Interface for classes which create <code>Metrics</code> instances. Clients
+     * should create a single instance of an implementing class for the entire
+     * life of the application.
+     *
+     * @author Matthew Hayter (mhayter at groupon dot com)
+     */
+    export interface MetricsFactory {
+        /**
+         * Create an instance of <code>Metrics</code>.
+         */
+        create(): Metrics
+    }
+
+    /**
      * Interface for logging metrics: timers, counters and gauges for TSD Aggregator
      *
      * @author Mohammed Kamel (mkamel at groupon dot com)

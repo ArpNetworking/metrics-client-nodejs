@@ -18,11 +18,12 @@
 import tsdDef = require("tsdDef");
 import counters = require("./tsd-counter");
 import tsd = require("./tsd-metrics-client");
+import metrics = require("tsd-metrics");
 import metricsList = require("./tsd-metrics-list");
 import utils = require("./utils");
 
 //aliases
-import MetricsStateObject = tsd.MetricsStateObject;
+import MetricsStateObject = metrics.MetricsStateObject;
 import TsdCounter = counters.TsdCounter;
 import TsdMetricsList = metricsList.TsdMetricsList;
 
