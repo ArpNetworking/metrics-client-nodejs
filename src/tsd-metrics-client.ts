@@ -344,6 +344,24 @@ export class TsdMetrics implements tsdDef.Metrics {
     }
 
     /**
+     * Add a set of attributes that describes the captured metrics or context.
+     *
+     * @param annotations The string-string pairs that represent the annotations.
+     */
+    public addAnnotations(annotations: {[key: string]: string}): void {
+        // TODO
+    }
+
+    /**
+     * Add a set of dimensions: context which affects the aggregation of the associated metrics.
+     *
+     * @param dimensions The string-string pairs that represent the dimensions.
+     */
+    addDimensions(dimensions: {[key: string]: string}): void{
+        // TODO
+    }
+
+    /**
      * Add a dimension: context which affects the aggregation of the associated metrics.
      *
      * @method
