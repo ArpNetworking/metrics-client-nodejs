@@ -154,6 +154,28 @@ declare module "tsdDef" {
         annotate(key:string, value:string): void;
 
         /**
+         * Add a set of attributes that describes the captured metrics or context.
+         *
+         * @param annotations The string-string pairs that represent the annotations.
+         */
+        addAnnotations(annotations: {[key: string]: string}): void;
+
+        /**
+         * Add a dimension: context which affects the aggregation of the associated metrics.
+         *
+         * @param key The name of the dimension, for example 'endpoint'.
+         * @param value The value of the dimension, for example, '/users'.
+         */
+        addDimension(key:string, value:string): void;
+
+        /**
+         * Add a set of dimensions: context which affects the aggregation of the associated metrics.
+         *
+         * @param dimensions The string-string pairs that represent the dimensions.
+         */
+        addDimensions(dimensions: {[key: string]: string}): void;
+
+        /**
          * Close the metrics object. This should complete publication of metrics to
          * the underlying data store. Once the metrics object is closed, no further
          * metrics can be recorded.
