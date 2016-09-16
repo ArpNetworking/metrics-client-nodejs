@@ -15,10 +15,10 @@
  */
 
 import tsdDef = require("tsdDef");
-import log4js = require("log4js");
 import events = require("events");
 import _ = require("underscore");
 
+import options = require("./tsd-default-options");
 import timers = require("./tsd-timer");
 import counters = require("./tsd-counter");
 import utils = require("./utils");
@@ -30,15 +30,14 @@ import metricsList = require("./tsd-metrics-list");
 import metricsEvent = require("./tsd-metrics-event");
 import metricsFactory = require("./tsd-metrics-factory");
 import metrics = require("./tsd-metrics");
-import log4jsSink = require("./sinks/tsd-query-log-sink");
-import consoleSink = require("./sinks/tsd-console-sink");
+
 import sink = require("./sinks/tsd-sink");
 import errors = require("./error-reporting");
 
 //aliases
+import Options = options.Options;
 import TsdTimer = timers.TsdTimer;
 import TsdCounter = counters.TsdCounter;
-import Lazy = utils.Lazy;
 import CounterSamples = counterSamples.CounterSamples;
 import TimerSamples = timerSamples.TimerSamples;
 import Units = units.Units;
@@ -47,45 +46,7 @@ import TsdMetricsList = metricsList.TsdMetricsList;
 import TsdMetricsEvent = metricsEvent.TsdMetricsEvent;
 import TsdMetricsFactory = metricsFactory.TsdMetricsFactory
 import TsdMetrics = metrics.TsdMetrics;
-
-/**
- * The tsd module configuration parameters.
- * @ignore
- */
-class Options {
-    /* istanbul ignore next */
-    constructor() {
-    }
-
-    /**
-     * Sets the maximums size of log in bytes before rolling a new file.
-     * Default: 32 MB
-     * @type {number}
-     */
-    public static LOG_MAX_SIZE:number = 32 * 1024 * 1024;
-
-    /**
-     * Sets the maximum number of log files backup to retain.
-     * Default: 10
-     * @type {number}
-     */
-    public static LOG_BACKUPS:number = 10;
-
-    /**
-     * The name of the query log file
-     * Default: "tsd-query.log"
-     * @type {string}
-     */
-    public static LOG_FILE_NAME:string = "tsd-query.log";
-
-    /**
-     * Sets a flag to output the metrics to console in addition to the query file (mainly for testing).
-     * Default: false
-     * @type {boolean}
-     */
-    public static LOG_CONSOLE_ECHO:boolean = false;
-}
-
+import DefaultSinks = metricsFactory.DefaultSinks;
 
 /**
  * 'error' event. Emitted on errors or improper usage of API's
@@ -104,41 +65,7 @@ class Options {
  * @property {Object.<string, number[]>} gauges Array of {"gauge" : [samples]} hashes.
  */
 
-/**
- * Static class holding factory for built in sinks. See example in
- * [tsd-metrics-client.init]{@linkcode module:tsd-metrics-client~init}
- *
- * @class
- * @alias Sinks
- */
-export class TsdSinks {
-    /* istanbul ignore next */ //This is a static class
-    constructor() {
-    }
 
-    /**
-     * Create a sink that outputs metrics data to the a file with standard tsd query format
-     *
-     * @method
-     * @param {string} filename The name of the query log file. Default: "tsd-query.log"
-     * @param {number} maxLogSize The maximums size of log in bytes before rolling a new file. Default: 33554432 (32 MB)
-     * @param {number} backups The maximum number of log files backup to retain. Default: 10
-     * @returns {QueryLogSink}
-     */
-    public static createQueryLogSink(filename:string = "tsd-query.log", maxLogSize:number = 32 * 1024 * 1024, backups:number = 10):tsdDef.Sink {
-        return log4jsSink.TsdQueryLogSink.createQueryLogger(filename, maxLogSize, backups);
-    }
-
-    /**
-     * Create a sink that outputs metrics data to console
-     *
-     * @method
-     * @returns {ConsoleSink}
-     */
-    public static createConsoleSink():tsdDef.Sink {
-        return new consoleSink.TsdConsoleSink();
-    }
-}
 
 /**
  * Initialize the tsd metrics library by setting the sinks to output metrics to. By default a query log sink is added
@@ -199,20 +126,20 @@ module.exports = function (options:any = {}) {
     if (typeof options.LOG_CONSOLE_ECHO !== "undefined") {
         Options.LOG_CONSOLE_ECHO = options.LOG_CONSOLE_ECHO;
     }
-    var sinks = [TsdSinks.createQueryLogSink(
+    var sinks = [DefaultSinks.createQueryLogSink(
         Options.LOG_FILE_NAME,
         Options.LOG_MAX_SIZE,
         Options.LOG_BACKUPS)];
 
     if (Options.LOG_CONSOLE_ECHO) {
-        sinks.push(TsdSinks.createConsoleSink());
+        sinks.push(DefaultSinks.createConsoleSink());
     }
     init(sinks);
 
     return module.exports;
 };
 
-module.exports.Sinks = TsdSinks;
+module.exports.Sinks = DefaultSinks;
 module.exports.TsdMetrics = TsdMetrics;
 module.exports.TsdMetricsFactory = TsdMetricsFactory;
 module.exports.Sink = sink.TsdSink;

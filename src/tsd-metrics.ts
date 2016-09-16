@@ -15,7 +15,6 @@
  */
 
 import tsdDef = require("tsdDef");
-import log4js = require("log4js");
 import events = require("events");
 import _ = require("underscore");
 
@@ -97,8 +96,13 @@ export class TsdMetrics implements tsdDef.Metrics {
     /**
      * Constructor.
      */
-    constructor(sinks = _globalSinks) {
+    constructor(serviceName:string, clusterName:string, hostName:string, sinks:tsdDef.Sink[] = _globalSinks) {
+
+        // TODO: remove the global sinks.
         this._sinks = sinks;
+        this.annotate("_service", serviceName);
+        this.annotate("_cluster", clusterName);
+        this.annotate("_host", hostName);
         this.annotate("initTimestamp", new Date().toISOString());
     }
 

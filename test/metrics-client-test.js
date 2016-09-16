@@ -59,7 +59,12 @@ function clearErrors() {
 describe('TsdMetrics', function() {
   beforeEach(function() {
     clearErrors();
-    metricsFactory = new tsd.TsdMetricsFactory(metricsTestSinks);
+    emittedMetricEvent = null;
+    metricsFactory = tsd.TsdMetricsFactory.buildInstance({
+      serviceName: "someService",
+      clusterName: "someCluster",
+      hostName: "someHost",
+      sinks:metricsTestSinks});
   });
   afterEach(function() {
     if (!skipErrorValidation) {
@@ -69,9 +74,9 @@ describe('TsdMetrics', function() {
     }
   });
   describe('Legacy initialization', function() {
-    it('should initialize the sinks properly', function() {
-      var m = createMetrics();
+    it('should initialize the sinks properly when creating metrics directly', function() {
       tsd.init(metricsTestSinks);
+      var m = new metrics.TsdMetrics();
       var helloCounter = Math.floor(Math.random() * 50.0);
 
       testCommon.print("increment counter 'hello' by " + helloCounter);
@@ -364,7 +369,11 @@ describe('TsdMetrics', function() {
       FaultySink.prototype.record = function(metricsEvent) {
         throw new Error(errMsg);
       };
-      metricsFactory = new tsd.TsdMetricsFactory([new FaultySink()]);
+      metricsFactory = tsd.TsdMetricsFactory.buildInstance({
+        serviceName: "someService",
+        clusterName: "someCluster",
+        hostName: "someHost",
+        sinks: [new FaultySink()]});
       var m = createMetrics();
       var errMsg = "LOGGER ERROR";
 
@@ -376,28 +385,6 @@ describe('TsdMetrics', function() {
       assert.include(errorArr[0].toString(), "FaultySink");
       assert.include(errorArr[0].toString(), errMsg);
 
-      done();
-    });
-
-    it('should report error correctly from sinks', function(done) {
-      function ErrorReportingSink() {}
-
-      util.inherits(ErrorReportingSink, tsd.Sink);
-
-      ErrorReportingSink.prototype.record = function(metricsEvent) {
-        throw new Error(errMsg);
-      };
-      metricsFactory = new tsd.TsdMetricsFactory([new ErrorReportingSink()]);
-      var m = createMetrics();
-      var errMsg = "LOGGER ERROR";
-
-      testCommon.print("close the metrics object");
-      m.createCounter("TEST");
-      m.close();
-
-      assert.lengthOf(errorArr, 1, "unexpected count of errors");
-      assert.include(errorArr[0].toString(), "ErrorReportingSink");
-      assert.include(errorArr[0].toString(), errMsg);
       done();
     });
 
