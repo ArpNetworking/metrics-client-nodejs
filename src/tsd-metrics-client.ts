@@ -65,30 +65,6 @@ import DefaultSinks = metricsFactory.DefaultSinks;
  * @property {Object.<string, number[]>} gauges Array of {"gauge" : [samples]} hashes.
  */
 
-
-
-/**
- * Initialize the tsd metrics library by setting the sinks to output metrics to. By default a query log sink is added
- * with it's default configuration, in case <code>init</code> wasn't called.
- *
- * @param {Sink[]} sinks Array of objects extending [Sink]{@linkcode Sink}
- * @deprecated Use a <code>MetricsFactory</code> instead.
- * @example
- * var tsd = require("tsd-metrics-client");
- * var util = require("util");
- * function MySink() {
- * }
- * util.inherits(MySink, tsd.Sink);
- * MySink.prototype.record = function (metricsEvent) {
- *      console.log(metricsEvent);
- * };
- * var mySink =  new MySink();
- * tsd.init([mySink, tsd.Sinks.createQueryLogSink(), tsd.Sinks.createConsoleSink()])
- */
-function init(sinks:tsdDef.Sink[]) {
-    metrics._globalSinks = sinks;
-}
-
 /**
  * Main modules for TSD Client
  * @module tsd-metrics-client
@@ -103,47 +79,10 @@ function init(sinks:tsdDef.Sink[]) {
  * @property {string} LOG_CONSOLE_ECHO - Sets a flag to output the metrics to console in addition to the query file.
  */
 
-/**
- * Set the global configuration of the tsd module. It should be specified once per application.
- * @param {options} [options] A hash that specifies the configuration parameters
- * @deprecated passing options to require is deprecated. You should use
- * [tsd-metrics-factory]{@linkcode module:tsd-metrics-factory} instead, to configure where to output the metrics
- * @alias module:tsd-metrics-client
- */
-module.exports = function (options:any = {}) {
-    if (typeof options.LOG_MAX_SIZE !== "undefined") {
-        Options.LOG_MAX_SIZE = options.LOG_MAX_SIZE;
-    }
-
-    if (typeof options.LOG_BACKUPS !== "undefined") {
-        Options.LOG_BACKUPS = options.LOG_BACKUPS;
-    }
-
-    if (typeof options.LOG_FILE_NAME !== "undefined") {
-        Options.LOG_FILE_NAME = options.LOG_FILE_NAME;
-    }
-
-    if (typeof options.LOG_CONSOLE_ECHO !== "undefined") {
-        Options.LOG_CONSOLE_ECHO = options.LOG_CONSOLE_ECHO;
-    }
-    var sinks = [DefaultSinks.createQueryLogSink(
-        Options.LOG_FILE_NAME,
-        Options.LOG_MAX_SIZE,
-        Options.LOG_BACKUPS)];
-
-    if (Options.LOG_CONSOLE_ECHO) {
-        sinks.push(DefaultSinks.createConsoleSink());
-    }
-    init(sinks);
-
-    return module.exports;
-};
-
 module.exports.Sinks = DefaultSinks;
 module.exports.TsdMetrics = TsdMetrics;
 module.exports.TsdMetricsFactory = TsdMetricsFactory;
 module.exports.Sink = sink.TsdSink;
 module.exports.MetricsEvent = TsdMetricsEvent;
 module.exports.Units = Units;
-module.exports.init = init;
 module.exports.onError = errors.onError;

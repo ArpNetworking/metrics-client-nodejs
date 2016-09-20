@@ -87,8 +87,10 @@ if (testCommon.verbose) {
     testSinks.push(tsd.Sinks.createConsoleSink());
 }
 
+var metricsFactory = null;
+
 function createMetrics() {
-    return new tsd.TsdMetrics();
+    return metricsFactory.create();
 }
 
 function validateSchema(jsonObject) {
@@ -111,7 +113,11 @@ describe('Query log sink', function () {
 
     beforeEach(function () {
         clearErrors();
-        tsd.init(testSinks.concat([queryLogSink]));
+        metricsFactory = tsd.TsdMetricsFactory.buildInstance({
+            serviceName: "someService",
+            clusterName: "someCluster",
+            hostName: "someHost",
+            sinks: testSinks.concat([queryLogSink])});
     });
 
     afterEach(function () {
@@ -270,7 +276,11 @@ describe('Query log sink', function () {
         TestSink.prototype.record = function (metricsEvent) {
             emittedMetricEvent = metricsEvent;
         };
-        tsd.init(testSinks.concat([new TestSink()]));
+        metricsFactory = tsd.TsdMetricsFactory.buildInstance({
+            serviceName: "someService",
+            clusterName: "someCluster",
+            hostName: "someHost",
+            sinks: testSinks.concat([new TestSink()])});
         var m = createMetrics();
         m.incrementCounter("test");
         m.close();
@@ -307,7 +317,11 @@ describe('Console log sink', function () {
 
     beforeEach(function () {
         clearErrors();
-        tsd.init(testSinks.concat([new TestSink(), consoleLogSink]));
+        metricsFactory = tsd.TsdMetricsFactory.buildInstance({
+            serviceName: "someService",
+            clusterName: "someCluster",
+            hostName: "someHost",
+            sinks: testSinks.concat([new TestSink(), consoleLogSink])});
     });
 
     afterEach(function () {

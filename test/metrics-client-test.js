@@ -37,7 +37,7 @@ if (testCommon.verbose) {
   metricsTestSinks.push(tsd.Sinks.createConsoleSink());
 }
 
-var metricsFactory = new tsd.TsdMetricsFactory(metricsTestSinks);
+var metricsFactory = null;
 
 function createMetrics() {
   return metricsFactory.create();
@@ -73,56 +73,13 @@ describe('TsdMetrics', function() {
       }
     }
   });
-  describe('Legacy initialization', function() {
-    it('should initialize the sinks properly when creating metrics directly', function() {
-      tsd.init(metricsTestSinks);
-      var m = new metrics.TsdMetrics();
-      var helloCounter = Math.floor(Math.random() * 50.0);
-
-      testCommon.print("increment counter 'hello' by " + helloCounter);
-      m.incrementCounter("hello", helloCounter);
-
-      testCommon.print("increment counter 'hello' by 1");
-      m.incrementCounter("hello");
-
-      m.close();
-      assert.counter(emittedMetricEvent.counters.hello.getValues()[0], helloCounter + 1,
-          "increment counter happy case failed");
-    })
-  });
 
   describe('Verify Exports', function() {
-    it('should export correctly with or without parameters passed to require() ', function(done) {
+    it('should export correctly', function() {
       var tsdTestNoParams = require("../lib/tsd-metrics-client");
       assert.isDefined(tsdTestNoParams);
       assert.isDefined(tsdTestNoParams.TsdMetrics);
-
-      var tsdTestOptionalParams = require("../lib/tsd-metrics-client")();
-      assert.isDefined(tsdTestOptionalParams);
-      assert.isDefined(tsdTestOptionalParams.TsdMetrics);
-
-      done();
-    });
-
-    it('should export correctly using old require options', function(done) {
-      var tsdTestWithParams = require("../lib/tsd-metrics-client")({
-        LOG_MAX_SIZE: 1000,
-        LOG_BACKUPS: 2,
-        LOG_CONSOLE_ECHO: true,
-        LOG_FILE_NAME: "test-tsd-query.log"
-      });
-
-      assert.instanceOf(metrics._globalSinks[0], tsd.Sinks.createQueryLogSink().constructor);
-      assert.instanceOf(metrics._globalSinks[1], tsd.Sinks.createConsoleSink().constructor);
-
-      assert.isDefined(tsdTestWithParams);
-      assert.isDefined(tsdTestWithParams.TsdMetrics);
-
-      var tsdTestOptionalParams = require("../lib/tsd-metrics-client")();
-      assert.isDefined(tsdTestOptionalParams);
-      assert.isDefined(tsdTestOptionalParams.TsdMetrics);
-
-      done();
+      assert.isDefined(tsdTestNoParams.TsdMetricsFactory);
     });
   });
 
@@ -295,8 +252,6 @@ describe('TsdMetrics', function() {
 
   describe("Errors", function() {
     beforeEach(function() {
-      clearErrors();
-      tsd.init(metricsTestSinks);
       skipErrorValidation = true;
     });
     it('should report error on closing twice', function(done) {
@@ -401,9 +356,8 @@ describe('TsdMetrics', function() {
     });
 
     it('should report error if OOP counters/timers incremented/stopped after close', function(done) {
-      var m = createMetrics(false);
+      var m = createMetrics();
 
-      tsd.init(metricsTestSinks);
       testCommon.print("close the metrics object");
       var timer = m.createTimer("TEST_TIMER");
       var counter = m.createCounter("TEST_COUNTER");

@@ -46,11 +46,6 @@ import TsdMetricsEvent = metricsEvent.TsdMetricsEvent;
 import TsdMetricsFactory = metricsFactory.TsdMetricsFactory
 
 /**
- * Default set of global sinks, to support legacy global initialization via init().
- */
-export var _globalSinks:tsdDef.Sink[] = [];
-
-/**
  * Node JS class for publishing metrics as time series data (TSD).
  *
  * @class
@@ -96,9 +91,7 @@ export class TsdMetrics implements tsdDef.Metrics {
     /**
      * Constructor.
      */
-    constructor(serviceName:string, clusterName:string, hostName:string, sinks:tsdDef.Sink[] = _globalSinks) {
-
-        // TODO: remove the global sinks.
+    constructor(serviceName:string, clusterName:string, hostName:string, sinks:tsdDef.Sink[]) {
         this._sinks = sinks;
         this.annotate("_service", serviceName);
         this.annotate("_cluster", clusterName);
