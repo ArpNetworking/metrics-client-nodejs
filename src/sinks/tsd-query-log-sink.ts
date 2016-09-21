@@ -75,7 +75,7 @@ export class TsdQueryLogSink implements tsdDef.Sink {
         return JSON.stringify(utils.stenofy(transformedMetricsEvent, transformedMetricsEvent.annotations["_host"]),
             (key, value) => {
                 if (tsdSink.TsdSink.isMetricSample(value)) {
-                    // TODO: implement unit numerators & denominators
+                    // TODO(matthayter): implement unit numerators & denominators
                     var unit = (<tsdDef.MetricSample>value).getUnit();
                     var sample:any = {
                         value: (<tsdDef.MetricSample>value).getValue()

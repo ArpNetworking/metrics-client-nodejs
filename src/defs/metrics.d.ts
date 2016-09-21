@@ -334,12 +334,13 @@ declare module "tsdDef" {
     }
 
     export interface Annotations2F {
-        // Must be formatted according to RFC 3339, section 5.6. See https://tools.ietf.org/html/rfc3339#section-5.6
+        // A date-time. Must be formatted according to RFC 3339, section 5.6. See https://tools.ietf.org/html/rfc3339#section-5.6
         _end: string;
-        // Must be formatted according to RFC 3339, section 5.6. See https://tools.ietf.org/html/rfc3339#section-5.6
+        // A date-time. Must be formatted according to RFC 3339, section 5.6. See https://tools.ietf.org/html/rfc3339#section-5.6
         _start: string;
         _service: string;
         _cluster: string;
+        _host: string;
         [annotationName: string]: string;
     }
 

@@ -58,17 +58,14 @@ export function isEmptyObject(obj) {
  * @ignore
  */
 export function stenofy(logEntry:tsdDef.MetricsEvent, hostName:string) {
-
-    var stenoHash:any = {
+    return {
         "time": new Date().toISOString(),
         "name": "aint.metrics",
         "level": "info",
         "data": logEntry,
+        "context": {"host": hostName},
         "id": uuid.v4()
     };
-    stenoHash.context = {"host": hostName};
-
-    return stenoHash;
 }
 
 /* istanbul ignore next */ //The class is not currently used.
