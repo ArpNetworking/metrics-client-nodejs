@@ -250,10 +250,32 @@ export class TsdMetrics implements tsdDef.Metrics {
      * @param {string} key The name of the attribute.
      * @param {string} value The value of the attribute.
      * @emits 'error' if the metrics object is closed
+     * @deprecated Use <code>addAnnotation</code> instead, to conform with other TSD-Metrics clients.
      */
     public annotate(key:string, value:string) {
+        this.addAnnotation(key, value);
+    }
+
+    /**
+     * Add an attribute that describes the captured metrics or context.
+     *
+     * @param key The name of the attribute.
+     * @param value The value of the attribute.
+     */
+    public addAnnotation(key:string, value:string) {
         if (this._metricsStateObject.assertIsOpen()) {
             this._metricsEvent.annotations[key] = value;
+        }
+    }
+
+    /**
+     * Add a set of attributes that describes the captured metrics or context.
+     *
+     * @param annotations The string-string pairs that represent the annotations.
+     */
+    public addAnnotations(annotations: {[key: string]: string}) {
+        if (this._metricsStateObject.assertIsOpen()) {
+            _.extend(this._metricsEvent.annotations, annotations);
         }
     }
 

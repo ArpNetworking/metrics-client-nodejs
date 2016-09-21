@@ -87,6 +87,7 @@ describe('TsdMetrics', function() {
     var helloCounter = Math.floor(Math.random() * 50.0);
     var worldCounter = Math.floor(Math.random() * 50.0);
     var customAnnotation = "HelloWorld";
+    var customAnnotations = {"anno1": "val1", "anno2": "val2"};
     var gg0 = Math.floor(Math.random() * 50.0);
     var gg1 = Math.floor(Math.random() * 50.0);
     var ct0 = Date.now();
@@ -95,7 +96,10 @@ describe('TsdMetrics', function() {
       var m = createMetrics();
 
       testCommon.print("adding custom annotation " + customAnnotation);
-      m.annotate(customAnnotation, customAnnotation);
+      m.addAnnotation(customAnnotation, customAnnotation);
+
+      testCommon.print("adding set of custom annotations " + JSON.stringify(customAnnotations));
+      m.addAnnotations(customAnnotations);
 
       testCommon.print("start timer1");
       m.startTimer("timer1");
@@ -134,6 +138,8 @@ describe('TsdMetrics', function() {
         assert.property(emittedMetricEvent.annotations, "_start");
         assert.property(emittedMetricEvent.annotations, "_end");
         assert.property(emittedMetricEvent.annotations, customAnnotation);
+        assert.propertyVal(emittedMetricEvent.annotations, "anno1", "val1");
+        assert.propertyVal(emittedMetricEvent.annotations, "anno2", "val2");
 
         assert.counter(emittedMetricEvent.counters.brandNew.getValues()[0], 0,
           "resetCounter didn't creat counter with value 0");
@@ -310,7 +316,7 @@ describe('TsdMetrics', function() {
       m.startTimer();
       m.setGauge();
       m.setTimer();
-      m.annotate("bla")
+      m.addAnnotation("bla");
 
       assert.lengthOf(errorArr, 6, "unexpected count of errors");
       done();

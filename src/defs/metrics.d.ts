@@ -164,8 +164,24 @@ declare module "tsdDef" {
          *
          * @param key The name of the attribute.
          * @param value The value of the attribute.
+         * @deprecated Use <code>addAnnotation</code> instead, to conform with other TSD-Metrics clients.
          */
         annotate(key:string, value:string): void;
+
+        /**
+         * Add an attribute that describes the captured metrics or context.
+         *
+         * @param key The name of the attribute.
+         * @param value The value of the attribute.
+         */
+        addAnnotation(key:string, value:string): void;
+
+        /**
+         * Add a set of attributes that describes the captured metrics or context.
+         *
+         * @param annotations The string-string pairs that represent the annotations.
+         */
+        addAnnotations(annotations: {[key: string]: string}): void;
 
         /**
          * Close the metrics object. This should complete publication of metrics to
