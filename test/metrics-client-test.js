@@ -131,8 +131,8 @@ describe('TsdMetrics', function() {
         testCommon.print("stop timer1 after ~750ms");
         m.stopTimer("timer1");
         m.close();
-        assert.property(emittedMetricEvent.annotations, "initTimestamp");
-        assert.property(emittedMetricEvent.annotations, "finalTimestamp");
+        assert.property(emittedMetricEvent.annotations, "_start");
+        assert.property(emittedMetricEvent.annotations, "_end");
         assert.property(emittedMetricEvent.annotations, customAnnotation);
 
         assert.counter(emittedMetricEvent.counters.brandNew.getValues()[0], 0,
@@ -433,8 +433,8 @@ describe('TsdMetrics', function() {
         timer1.stop();
         m.close();
 
-        assert.property(emittedMetricEvent.annotations, "initTimestamp");
-        assert.property(emittedMetricEvent.annotations, "finalTimestamp");
+        assert.property(emittedMetricEvent.annotations, "_start");
+        assert.property(emittedMetricEvent.annotations, "_end");
 
         assert.counter(emittedMetricEvent.counters.hello.getValues()[0], helloCounterValue + 1,
           "increment counter happy case failed");

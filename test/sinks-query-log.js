@@ -23,7 +23,7 @@ var JaySchema = require("jayschema");
 var fs = require("fs");
 var path = require("path");
 
-var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-schema-2f.json");
+var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-steno-schema-2f.json");
 var TEST_LOGFILE_NAME = "test-tsd-query.log";
 
 if (fs.existsSync(TEST_LOGFILE_NAME)) {
@@ -45,7 +45,7 @@ before(function(done) {
 
         // Fetch query log schema
         request({
-            url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-schema-2f.json",
+            url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-steno-schema-2f.json",
             json: true
         }, function(err, response, body) {
             if (err != null) {
@@ -95,7 +95,7 @@ function createMetrics() {
 
 function validateSchema(jsonObject) {
     var schemaValidation = schemaValidator.validate(jsonObject, log_schema);
-    assert.lengthOf(schemaValidation, 0, "Schema Validation failed: " + JSON.stringify(schemaValidation));
+    assert.lengthOf(schemaValidation, 0, "Schema Validation failed: " + JSON.stringify(schemaValidation, null, "  "));
 }
 
 describe('Query log sink', function () {
@@ -123,7 +123,7 @@ describe('Query log sink', function () {
     afterEach(function () {
         if (!skipErrorValidation) {
             if (errorArr.length > 0) {
-                this.test.error(new Error("Errors reported when non is expected.\n" + errorArr.toString()));
+                this.test.error(new Error("Errors reported when none were expected.\n" + errorArr.toString()));
             }
         }
     });
@@ -164,8 +164,6 @@ describe('Query log sink', function () {
             m.close();
             validateSchema(deserializedEvent);
 
-            assert.property(deserializedEvent.data.annotations, "initTimestamp");
-            assert.property(deserializedEvent.data.annotations, "finalTimestamp");
             assert.property(deserializedEvent.data.annotations, customAnnotation);
 
             assert.equal(deserializedEvent.data.counters.brandNew.values[0].value, 0,
@@ -182,7 +180,7 @@ describe('Query log sink', function () {
                 "log.timers.timer1.values[0] >= 750");
             assert.equal(deserializedEvent.data.timers.customTimer.values[0].value, ct0,
                 "setTimer failed to set the correct time duration");
-            assert.equal(deserializedEvent.data.timers.customTimer.values[0].unit, "millisecond",
+            assert.equal(deserializedEvent.data.timers.customTimer.values[0].unitNumerators[0], "millisecond",
                 "setTimer failed to set the correct time unit");
             done();
         }, 750);
@@ -201,8 +199,8 @@ describe('Query log sink', function () {
         m.close(); //serialization reports two errors
 
         validateSchema(deserializedEvent);
-        assert.property(deserializedEvent.data.annotations, "initTimestamp");
-        assert.property(deserializedEvent.data.annotations, "finalTimestamp");
+        assert.property(deserializedEvent.data.annotations, "_start");
+        assert.property(deserializedEvent.data.annotations, "_end");
         assert.notProperty(deserializedEvent.data, "counters");
         assert.notProperty(deserializedEvent.data, "gauges");
         assert.property(deserializedEvent.data, "timers");
@@ -259,8 +257,6 @@ describe('Query log sink', function () {
         m.close();
 
         validateSchema(deserializedEvent);
-        assert.property(deserializedEvent.data.annotations, "initTimestamp");
-        assert.property(deserializedEvent.data.annotations, "finalTimestamp");
         assert.notProperty(deserializedEvent.data, "counters");
         assert.notProperty(deserializedEvent.data, "gauges");
         assert.notProperty(deserializedEvent.data, "timers");
@@ -327,7 +323,7 @@ describe('Console log sink', function () {
     afterEach(function () {
         if (!skipErrorValidation) {
             if (errorArr.length > 0) {
-                this.test.error(new Error("Errors reported when non is expected.\n" + errorArr.toString()));
+                this.test.error(new Error("Errors reported when none were expected.\n" + errorArr.toString()));
             }
         }
     });

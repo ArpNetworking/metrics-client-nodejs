@@ -47,6 +47,7 @@ export class TsdCounter extends TsdMetricSample implements tsdDef.Counter {
     /**
      * Constructor.
      *
+     * @param _name The name of this Counter metric.
      * @param {MetricsStateObject} _metricsStateObject Object holding state of the parent metrics object.
      * @ignore
      */

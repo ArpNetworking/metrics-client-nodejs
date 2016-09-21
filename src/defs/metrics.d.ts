@@ -311,30 +311,36 @@ declare module "tsdDef" {
     export interface MetricsEvent {
         /**
          * The annotations represented as hash of arrays indexed by annotation name.
-         * @type {{Object.<string, MetricsList>}}
          */
-        annotations:{[name:string]: string};
+        annotations:Annotations2F;
 
         /**
          * Counters and their samples recorded represented as hash of counter name to
          * [MetricSample]{@linkcode MetricSample}
-         * @type {{Object.<string, MetricsList>}}
          */
         counters:{[name:string]: MetricsList<MetricSample>};
 
         /**
          * Gauges and their samples recorded represented as hash of counter name to
          * [MetricSample]{@linkcode MetricSample}
-         * @type {{Object.<string, MetricsList>}}
          */
         gauges:{[name:string]: MetricsList<MetricSample>};
 
         /**
          * Timers and their samples recorded represented as hash of counter name to
          * [MetricSample]{@linkcode MetricSample}
-         * @type {{Object.<string, MetricsList>}}
          */
         timers:{[name:string]: MetricsList<MetricSample>};
+    }
+
+    export interface Annotations2F {
+        // Must be formatted according to RFC 3339, section 5.6. See https://tools.ietf.org/html/rfc3339#section-5.6
+        _end: string;
+        // Must be formatted according to RFC 3339, section 5.6. See https://tools.ietf.org/html/rfc3339#section-5.6
+        _start: string;
+        _service: string;
+        _cluster: string;
+        [annotationName: string]: string;
     }
 
     /**

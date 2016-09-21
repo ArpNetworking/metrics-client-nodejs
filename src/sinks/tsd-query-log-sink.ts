@@ -72,22 +72,25 @@ export class TsdQueryLogSink implements tsdDef.Sink {
     private static stringify(metricsEvent:tsdDef.MetricsEvent):string {
         var transformedMetricsEvent = TsdQueryLogSink.transformMetricsEvent(metricsEvent);
 
-        return JSON.stringify(utils.stenofy(transformedMetricsEvent),
+        return JSON.stringify(utils.stenofy(transformedMetricsEvent, transformedMetricsEvent.annotations["_host"]),
             (key, value) => {
                 if (tsdSink.TsdSink.isMetricSample(value)) {
-                    return {
-                        value: (<tsdDef.MetricSample>value).getValue(),
-                        unit: (<tsdDef.MetricSample>value).getUnit()
+                    // TODO: implement unit numerators & denominators
+                    var unit = (<tsdDef.MetricSample>value).getUnit();
+                    var sample:any = {
+                        value: (<tsdDef.MetricSample>value).getValue()
                     };
+                    if (unit != null) {
+                        sample.unitNumerators = [unit.name];
+                    }
+                    return sample
                 }
                 if (tsdSink.TsdSink.isMetricsList(value)) {
                     return {
                         values: (<tsdDef.MetricsList<tsdDef.MetricSample>>value).getValues()
                     };
                 }
-                if (key[0] !== "_") {
-                    return value;
-                }
+                return value;
             });
 
     }
