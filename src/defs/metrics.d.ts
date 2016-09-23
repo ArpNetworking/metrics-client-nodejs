@@ -326,7 +326,19 @@ declare module "tsdDef" {
      */
     export interface MetricsEvent {
         /**
-         * The annotations represented as hash of arrays indexed by annotation name.
+         * The start time of the MetricsEvent. Typically interpreted as the lower bound (earliest) of the period during which the metrics
+         * were collected.
+         */
+        start:Date;
+
+        /**
+         * The end time of the MetricsEvent. Typically interpreted as the upper bound (latest) of the period during which the metrics were
+         * collected.
+         */
+        end:Date;
+
+        /**
+         * The annotations represented as a string:string map.
          */
         annotations:Annotations;
 
@@ -350,13 +362,6 @@ declare module "tsdDef" {
     }
 
     export interface Annotations {
-        // A date-time. Must be formatted according to RFC 3339, section 5.6. See https://tools.ietf.org/html/rfc3339#section-5.6
-        _end: string;
-        // A date-time. Must be formatted according to RFC 3339, section 5.6. See https://tools.ietf.org/html/rfc3339#section-5.6
-        _start: string;
-        _service: string;
-        _cluster: string;
-        _host: string;
         [annotationName: string]: string;
     }
 

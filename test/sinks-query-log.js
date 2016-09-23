@@ -95,6 +95,9 @@ function createMetrics() {
 
 function validateSchema(jsonObject) {
     var schemaValidation = schemaValidator.validate(jsonObject, log_schema);
+    if (schemaValidation.length > 0 ) {
+        console.log(JSON.stringify(jsonObject, null, "  "));
+    }
     assert.lengthOf(schemaValidation, 0, "Schema Validation failed: " + JSON.stringify(schemaValidation, null, "  "));
 }
 

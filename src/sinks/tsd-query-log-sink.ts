@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import _ = require("underscore");
+
 import tsdDef = require("tsdDef");
 import log4js = require("log4js");
 import utils = require("../utils");
@@ -96,8 +98,11 @@ export class TsdQueryLogSink implements tsdDef.Sink {
     }
 
     private static transformMetricsEvent(metricsEvent:tsdDef.MetricsEvent):any {
+        var annotations = _.clone(metricsEvent.annotations);
+        annotations["_start"] = metricsEvent.start.toISOString();
+        annotations["_end"] = metricsEvent.end.toISOString();
         var hash:any = {
-            annotations: metricsEvent.annotations
+            annotations: annotations
         };
 
         if (!utils.isEmptyObject(metricsEvent.counters)) {

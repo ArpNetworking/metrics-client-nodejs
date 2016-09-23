@@ -96,7 +96,7 @@ export class TsdMetrics implements tsdDef.Metrics {
         this.annotate("_service", serviceName);
         this.annotate("_cluster", clusterName);
         this.annotate("_host", hostName);
-        this.annotate("_start", new Date().toISOString());
+        this._metricsEvent.start = new Date();
     }
 
     /**
@@ -289,7 +289,7 @@ export class TsdMetrics implements tsdDef.Metrics {
      */
     public close() {
         if (this._metricsStateObject.assertIsOpen()) {
-            this.annotate("_end", new Date().toISOString());
+            this._metricsEvent.end = new Date();
 
             this._metricsStateObject.isOpen = false;
 
