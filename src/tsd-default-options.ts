@@ -43,11 +43,4 @@ export class Options {
      * @type {string}
      */
     public static LOG_FILE_NAME:string = "tsd-query.log";
-
-    /**
-     * Sets a flag to output the metrics to console in addition to the query file (mainly for testing).
-     * Default: false
-     * @type {boolean}
-     */
-    public static LOG_CONSOLE_ECHO:boolean = false;
 }

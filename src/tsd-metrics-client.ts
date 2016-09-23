@@ -76,7 +76,6 @@ import DefaultSinks = metricsFactory.DefaultSinks;
  * @property {number} LOG_MAX_SIZE - Sets the maximum number of log files backup to retain. Default: 33554432 (32 MB)
  * @property {number} LOG_BACKUPS - Sets the maximum number of log files backup to retain. Default: 10
  * @property {string} LOG_FILE_NAME - The name of the query log file. Default: "tsd-query.log"
- * @property {string} LOG_CONSOLE_ECHO - Sets a flag to output the metrics to console in addition to the query file.
  */
 
 module.exports.Sinks = DefaultSinks;
