@@ -164,7 +164,7 @@ declare module "tsdDef" {
          *
          * @param key The name of the attribute.
          * @param value The value of the attribute.
-         * @deprecated Use <code>addAnnotation</code> instead, to conform with other TSD-Metrics clients.
+         * @deprecated Use <code>addAnnotation</code> instead, to conform with other metrics clients.
          */
         annotate(key:string, value:string): void;
 
@@ -328,7 +328,7 @@ declare module "tsdDef" {
         /**
          * The annotations represented as hash of arrays indexed by annotation name.
          */
-        annotations:Annotations2F;
+        annotations:Annotations;
 
         /**
          * Counters and their samples recorded represented as hash of counter name to
@@ -349,7 +349,7 @@ declare module "tsdDef" {
         timers:{[name:string]: MetricsList<MetricSample>};
     }
 
-    export interface Annotations2F {
+    export interface Annotations {
         // A date-time. Must be formatted according to RFC 3339, section 5.6. See https://tools.ietf.org/html/rfc3339#section-5.6
         _end: string;
         // A date-time. Must be formatted according to RFC 3339, section 5.6. See https://tools.ietf.org/html/rfc3339#section-5.6
