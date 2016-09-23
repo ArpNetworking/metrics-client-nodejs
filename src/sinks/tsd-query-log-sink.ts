@@ -102,7 +102,8 @@ export class TsdQueryLogSink implements tsdDef.Sink {
         annotations["_start"] = metricsEvent.start.toISOString();
         annotations["_end"] = metricsEvent.end.toISOString();
         var hash:any = {
-            annotations: annotations
+            annotations: annotations,
+            dimensions: metricsEvent.dimensions
         };
 
         if (!utils.isEmptyObject(metricsEvent.counters)) {

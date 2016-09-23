@@ -93,9 +93,10 @@ export class TsdMetrics implements tsdDef.Metrics {
      */
     constructor(serviceName:string, clusterName:string, hostNameSupplier:tsdDef.HostNameSupplier, sinks:tsdDef.Sink[]) {
         this._sinks = sinks;
-        this.annotate("_service", serviceName);
-        this.annotate("_cluster", clusterName);
-        this.annotate("_host", hostNameSupplier.getHostname());
+        this.addDimension("_service", serviceName);
+        this.addDimension("_cluster", clusterName);
+        this.addDimension("_host", hostNameSupplier.getHostname());
+        // `new Date()` gets the current time as a Date object.
         this._metricsEvent.start = new Date();
     }
 
@@ -276,6 +277,29 @@ export class TsdMetrics implements tsdDef.Metrics {
     public addAnnotations(annotations: {[key: string]: string}) {
         if (this._metricsStateObject.assertIsOpen()) {
             _.extend(this._metricsEvent.annotations, annotations);
+        }
+    }
+
+    /**
+     * Add a dimension: context which affects the aggregation of the associated metrics.
+     *
+     * @param key The name of the dimension, for example 'endpoint'.
+     * @param value The value of the dimension, for example, '/users'.
+     */
+    public addDimension(key:string, value:string): void {
+        if (this._metricsStateObject.assertIsOpen()) {
+            this._metricsEvent.dimensions[key] = value;
+        }
+    }
+
+    /**
+     * Add a set of dimensions: context which affects the aggregation of the associated metrics.
+     *
+     * @param dimensions The string-string pairs that represent the dimensions.
+     */
+    public addDimensions(dimensions: {[key: string]: string}): void {
+        if (this._metricsStateObject.assertIsOpen()) {
+            _.extend(this._metricsEvent.dimensions, dimensions);
         }
     }
 
