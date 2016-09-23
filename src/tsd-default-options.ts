@@ -25,17 +25,17 @@ export class Options {
 
     /**
      * Sets the maximums size of log in bytes before rolling a new file.
-     * Default: 32 MB
+     * Default: 100 MB
      * @type {number}
      */
-    public static LOG_MAX_SIZE:number = 32 * 1024 * 1024;
+    public static LOG_MAX_SIZE:number = 100 * 1024 * 1024;
 
     /**
      * Sets the maximum number of log files backup to retain.
-     * Default: 10
+     * Default: 20
      * @type {number}
      */
-    public static LOG_BACKUPS:number = 10;
+    public static LOG_BACKUPS:number = 20;
 
     /**
      * The name of the query log file
