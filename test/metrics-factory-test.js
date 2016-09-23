@@ -4,6 +4,7 @@ var tsd = require("../lib/tsd-metrics-client");
 var assert = require("chai").assert;
 
 describe('Metrics Factory', function () {
+    var defaultFilename = "./tsd-query.log";
 
     var testSinkOutput = null;
     var testSink = {record: function(output) {
@@ -92,7 +93,6 @@ describe('Metrics Factory', function () {
     });
 
     it("can be created with defaults via 'newInstance()", function(done) {
-        var defaultFilename = "./tsd-query.log";
         // Remove the default query.log file on disk
         fs.unlink(defaultFilename, function(err) {
             // Ignore any error
@@ -112,4 +112,25 @@ describe('Metrics Factory', function () {
             }, 1);
         });
     });
+
+    it("can be handed a default query logger sink", function(done) {
+        // Remove the default query.log file on disk
+        fs.unlink(defaultFilename, function(err) {
+            var sink = tsd.Sinks.createQueryLogSink();
+            // Ignore any error
+            var metricsFactory = tsd.TsdMetricsFactory.buildInstance({serviceName: "someService", clusterName: "someCluster", sinks: [sink]});
+
+            var metrics = metricsFactory.create();
+            metrics.incrementCounter("defaultSinkTestCounter");
+            metrics.close();
+
+            // Wait for the query.log to be written
+            setTimeout(function () {
+                fs.readFile(defaultFilename, {encoding: "utf8"}, function(err, data) {
+                    assert.include(data, "defaultSinkTestCounter");
+                    done();
+                })
+            }, 1);
+        });
+    })
 });
