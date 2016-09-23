@@ -175,6 +175,21 @@ declare module "tsdDef" {
         addAnnotations(annotations: {[key: string]: string}): void;
 
         /**
+         * Add a dimension: context which affects the aggregation of the associated metrics.
+         *
+         * @param key The name of the dimension, for example 'endpoint'.
+         * @param value The value of the dimension, for example, '/users'.
+         */
+        addDimension(key:string, value:string): void;
+
+        /**
+         * Add a set of dimensions: context which affects the aggregation of the associated metrics.
+         *
+         * @param dimensions The string-string pairs that represent the dimensions.
+         */
+        addDimensions(dimensions: {[key: string]: string}): void;
+
+        /**
          * Close the metrics object. This should complete publication of metrics to
          * the underlying data store. Once the metrics object is closed, no further
          * metrics can be recorded.
@@ -334,6 +349,11 @@ declare module "tsdDef" {
         annotations:{[annotationName: string]: string};
 
         /**
+         * The associated dimensions represented as a string:string map.
+         */
+        dimensions:Dimensions2G;
+
+        /**
          * Counters and their samples recorded represented as hash of counter name to
          * [MetricSample]{@linkcode MetricSample}
          */
@@ -350,6 +370,13 @@ declare module "tsdDef" {
          * [MetricSample]{@linkcode MetricSample}
          */
         timers:{[name:string]: MetricsList<MetricSample>};
+    }
+
+    export interface Dimensions2G {
+        _service: string;
+        _cluster: string;
+        _host: string;
+        [annotationName: string]: string;
     }
 
     /**
