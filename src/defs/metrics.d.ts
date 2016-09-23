@@ -401,4 +401,8 @@ declare module "tsdDef" {
          */
         record(metricsEvent:MetricsEvent): void;
     }
+
+    export interface HostNameSupplier {
+        getHostname():string;
+    }
 }

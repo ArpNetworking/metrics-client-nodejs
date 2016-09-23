@@ -26,6 +26,7 @@ import options = require("./tsd-default-options");
 import log4jsSink = require("./sinks/tsd-query-log-sink");
 import consoleSink = require("./sinks/tsd-console-sink");
 import warningSink = require("./sinks/tsd-warning-sink");
+import hostnameSuppliers = require("./tsd-hostname-suppliers");
 
 import TsdMetrics = tsdMetrics.TsdMetrics;
 import Options = options.Options;
@@ -39,15 +40,20 @@ import Options = options.Options;
 export class TsdMetricsFactory implements tsdDef.MetricsFactory {
     private _serviceName:string;
     private _clusterName:string;
-    private _hostName:string;
+    private _hostNameSupplier:tsdDef.HostNameSupplier;
     private _sinks:tsdDef.Sink[];
     private _logger:log4js.Logger;
 
-    public static buildInstance(options: {serviceName:string; clusterName:string; hostName?:string; sinks?:tsdDef.Sink[]; logger?:log4js.Logger}):TsdMetricsFactory {
+    /**
+     * Build an instance of <code>TsdMetricsFactory</code> by providing the full configuration.
+     *
+     * @returns {TsdMetricsFactory}
+     */
+    public static buildInstance(options: {serviceName:string; clusterName:string; hostName?:string; hostnameSupplier?:tsdDef.HostNameSupplier; sinks?:tsdDef.Sink[]; logger?:log4js.Logger}):TsdMetricsFactory {
         var failures:string[] = [];
         var serviceName = options.serviceName;
         var clusterName = options.clusterName;
-        var hostName = options.hostName;
+        var hostnameSupplier = options.hostnameSupplier;
         var sinks = options.sinks;
         var logger = options.logger;
 
@@ -57,8 +63,12 @@ export class TsdMetricsFactory implements tsdDef.MetricsFactory {
         if (serviceName == null) {
             failures.push("serviceName must be provided");
         }
-        if (hostName == null) {
-            hostName = os.hostname();
+        if (hostnameSupplier == null) {
+            if (options.hostName != null) {
+                hostnameSupplier = new hostnameSuppliers.StaticHostnameSupplier(options.hostName)
+            } else {
+                hostnameSupplier = new hostnameSuppliers.StaticHostnameSupplier(os.hostname());
+            }
         }
         if (sinks == null) {
             sinks = [this.buildDefaultSink("./")]
@@ -70,7 +80,7 @@ export class TsdMetricsFactory implements tsdDef.MetricsFactory {
         if (failures.length > 0) {
             sinks = [new warningSink.TsdWarningSink(logger, failures)];
         }
-        return new TsdMetricsFactory(serviceName, clusterName, hostName, sinks, logger);
+        return new TsdMetricsFactory(serviceName, clusterName, hostnameSupplier, sinks, logger);
     }
 
     /**
@@ -89,7 +99,7 @@ export class TsdMetricsFactory implements tsdDef.MetricsFactory {
     }
 
     public create():tsdDef.Metrics {
-        return new TsdMetrics(this._serviceName, this._clusterName, this._hostName, this._sinks);
+        return new TsdMetrics(this._serviceName, this._clusterName, this._hostNameSupplier, this._sinks);
     }
 
     private static buildDefaultSink(directory) {
@@ -102,10 +112,10 @@ export class TsdMetricsFactory implements tsdDef.MetricsFactory {
     /*
     For internal use only. Use static methods to build the TsdMetricsFactory.
      */
-    constructor(serviceName:string, clusterName:string, hostName:string, sinks:tsdDef.Sink[], loggger:log4js.Logger) {
+    constructor(serviceName:string, clusterName:string, hostNameSupplier:tsdDef.HostNameSupplier, sinks:tsdDef.Sink[], loggger:log4js.Logger) {
         this._serviceName = serviceName;
         this._clusterName = clusterName;
-        this._hostName = hostName;
+        this._hostNameSupplier = hostNameSupplier;
         this._sinks = sinks;
         this._logger = loggger;
     }
