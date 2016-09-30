@@ -389,7 +389,15 @@ declare module "tsdDef" {
         record(metricsEvent:MetricsEvent): void;
     }
 
-    export interface HostNameSupplier {
+    /**
+     * Interface for strategies to supply the hostname to the <code>MetricsFactory</code> instance.
+     *
+     * @author Matthew Hayter (mhayter at groupon dot com)
+     */
+    export interface HostResolver {
+        /**
+         * Get the hostname of the local host.
+         */
         getHostname():string;
     }
 }

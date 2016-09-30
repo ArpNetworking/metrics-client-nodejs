@@ -91,11 +91,11 @@ export class TsdMetrics implements tsdDef.Metrics {
     /**
      * Constructor.
      */
-    constructor(serviceName:string, clusterName:string, hostNameSupplier:tsdDef.HostNameSupplier, sinks:tsdDef.Sink[]) {
+    constructor(serviceName:string, clusterName:string, hostResolver:tsdDef.HostResolver, sinks:tsdDef.Sink[]) {
         this._sinks = sinks;
         this.addAnnotation("_service", serviceName);
         this.addAnnotation("_cluster", clusterName);
-        this.addAnnotation("_host", hostNameSupplier.getHostname());
+        this.addAnnotation("_host", hostResolver.getHostname());
         this._metricsEvent.start = new Date();
     }
 
