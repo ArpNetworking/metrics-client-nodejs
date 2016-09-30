@@ -66,7 +66,7 @@ export class TsdMetricsEvent implements tsdDef.MetricsEvent {
      * @memberof! MetricsEvent#
      * @type {Object.<string, string>}
      */
-    public annotations:tsdDef.Annotations = <tsdDef.Annotations>{};
+    public annotations:{[annotationName: string]: string} = {};
 
     /**
      * Counters and their samples recorded represented as hash of counter name to

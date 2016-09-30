@@ -164,15 +164,6 @@ declare module "tsdDef" {
          *
          * @param key The name of the attribute.
          * @param value The value of the attribute.
-         * @deprecated Use <code>addAnnotation</code> instead, to conform with other metrics clients.
-         */
-        annotate(key:string, value:string): void;
-
-        /**
-         * Add an attribute that describes the captured metrics or context.
-         *
-         * @param key The name of the attribute.
-         * @param value The value of the attribute.
          */
         addAnnotation(key:string, value:string): void;
 
@@ -340,7 +331,7 @@ declare module "tsdDef" {
         /**
          * The annotations represented as a string:string map.
          */
-        annotations:Annotations;
+        annotations:{[annotationName: string]: string};
 
         /**
          * Counters and their samples recorded represented as hash of counter name to
@@ -359,10 +350,6 @@ declare module "tsdDef" {
          * [MetricSample]{@linkcode MetricSample}
          */
         timers:{[name:string]: MetricsList<MetricSample>};
-    }
-
-    export interface Annotations {
-        [annotationName: string]: string;
     }
 
     /**

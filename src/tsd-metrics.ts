@@ -93,9 +93,9 @@ export class TsdMetrics implements tsdDef.Metrics {
      */
     constructor(serviceName:string, clusterName:string, hostNameSupplier:tsdDef.HostNameSupplier, sinks:tsdDef.Sink[]) {
         this._sinks = sinks;
-        this.annotate("_service", serviceName);
-        this.annotate("_cluster", clusterName);
-        this.annotate("_host", hostNameSupplier.getHostname());
+        this.addAnnotation("_service", serviceName);
+        this.addAnnotation("_cluster", clusterName);
+        this.addAnnotation("_host", hostNameSupplier.getHostname());
         this._metricsEvent.start = new Date();
     }
 
@@ -241,19 +241,6 @@ export class TsdMetrics implements tsdDef.Metrics {
         if (this._metricsStateObject.assertIsOpen()) {
             this.getOrCreateGaugesSamples(name).push(TsdMetricSample.of(value, unit));
         }
-    }
-
-    /**
-     * Add an attribute that describes the captured metrics or context.
-     *
-     * @method
-     * @param {string} key The name of the attribute.
-     * @param {string} value The value of the attribute.
-     * @emits 'error' if the metrics object is closed
-     * @deprecated Use <code>addAnnotation</code> instead, to conform with other TSD-Metrics clients.
-     */
-    public annotate(key:string, value:string) {
-        this.addAnnotation(key, value);
     }
 
     /**

@@ -141,7 +141,7 @@ describe('Query log sink', function () {
 
         var m = createMetrics();
 
-        m.annotate(customAnnotation, customAnnotation);
+        m.addAnnotation(customAnnotation, customAnnotation);
         m.startTimer("timer1");
         m.incrementCounter("hello", helloCounter);
         m.incrementCounter("hello");
@@ -341,7 +341,7 @@ describe('Console log sink', function () {
 
         var m = createMetrics();
 
-        m.annotate(customAnnotation, customAnnotation);
+        m.addAnnotation(customAnnotation, customAnnotation);
         m.startTimer("timer1");
         m.incrementCounter("hello", helloCounter);
         m.incrementCounter("hello");
