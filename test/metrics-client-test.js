@@ -16,6 +16,7 @@
 
 var util = require("util");
 var tsd = require("../lib/tsd-metrics-client");
+var metrics = require("../lib/tsd-metrics");
 var assert = require("chai").assert;
 var expect = require("chai").expect;
 var fs = require("fs");
@@ -36,8 +37,10 @@ if (testCommon.verbose) {
   metricsTestSinks.push(tsd.Sinks.createConsoleSink());
 }
 
+var metricsFactory = null;
+
 function createMetrics() {
-  return new tsd.TsdMetrics();
+  return metricsFactory.create();
 }
 
 var errorArr = [];
@@ -56,7 +59,12 @@ function clearErrors() {
 describe('TsdMetrics', function() {
   beforeEach(function() {
     clearErrors();
-    tsd.init(metricsTestSinks);
+    emittedMetricEvent = null;
+    metricsFactory = tsd.TsdMetricsFactory.buildInstance({
+      serviceName: "someService",
+      clusterName: "someCluster",
+      hostName: "someHost",
+      sinks:metricsTestSinks});
   });
   afterEach(function() {
     if (!skipErrorValidation) {
@@ -65,38 +73,13 @@ describe('TsdMetrics', function() {
       }
     }
   });
+
   describe('Verify Exports', function() {
-    it('should export correctly with or without parameters passed to require() ', function(done) {
+    it('should export correctly', function() {
       var tsdTestNoParams = require("../lib/tsd-metrics-client");
       assert.isDefined(tsdTestNoParams);
       assert.isDefined(tsdTestNoParams.TsdMetrics);
-
-      var tsdTestOptionalParams = require("../lib/tsd-metrics-client")();
-      assert.isDefined(tsdTestOptionalParams);
-      assert.isDefined(tsdTestOptionalParams.TsdMetrics);
-
-      done();
-    });
-
-    it('should export correctly using old require options', function(done) {
-      var tsdTestWithParams = require("../lib/tsd-metrics-client")({
-        LOG_MAX_SIZE: 1000,
-        LOG_BACKUPS: 2,
-        LOG_CONSOLE_ECHO: true,
-        LOG_FILE_NAME: "test-tsd-query.log"
-      });
-
-      assert.instanceOf(tsd.init._sinks[0], tsd.Sinks.createQueryLogSink().constructor);
-      assert.instanceOf(tsd.init._sinks[1], tsd.Sinks.createConsoleSink().constructor);
-
-      assert.isDefined(tsdTestWithParams);
-      assert.isDefined(tsdTestWithParams.TsdMetrics);
-
-      var tsdTestOptionalParams = require("../lib/tsd-metrics-client")();
-      assert.isDefined(tsdTestOptionalParams);
-      assert.isDefined(tsdTestOptionalParams.TsdMetrics);
-
-      done();
+      assert.isDefined(tsdTestNoParams.TsdMetricsFactory);
     });
   });
 
@@ -104,6 +87,7 @@ describe('TsdMetrics', function() {
     var helloCounter = Math.floor(Math.random() * 50.0);
     var worldCounter = Math.floor(Math.random() * 50.0);
     var customAnnotation = "HelloWorld";
+    var customAnnotations = {"anno1": "val1", "anno2": "val2"};
     var gg0 = Math.floor(Math.random() * 50.0);
     var gg1 = Math.floor(Math.random() * 50.0);
     var ct0 = Date.now();
@@ -112,7 +96,10 @@ describe('TsdMetrics', function() {
       var m = createMetrics();
 
       testCommon.print("adding custom annotation " + customAnnotation);
-      m.annotate(customAnnotation, customAnnotation);
+      m.addAnnotation(customAnnotation, customAnnotation);
+
+      testCommon.print("adding set of custom annotations " + JSON.stringify(customAnnotations));
+      m.addAnnotations(customAnnotations);
 
       testCommon.print("start timer1");
       m.startTimer("timer1");
@@ -148,9 +135,11 @@ describe('TsdMetrics', function() {
         testCommon.print("stop timer1 after ~750ms");
         m.stopTimer("timer1");
         m.close();
-        assert.property(emittedMetricEvent.annotations, "initTimestamp");
-        assert.property(emittedMetricEvent.annotations, "finalTimestamp");
+        assert.property(emittedMetricEvent, "start");
+        assert.property(emittedMetricEvent, "end");
         assert.property(emittedMetricEvent.annotations, customAnnotation);
+        assert.propertyVal(emittedMetricEvent.annotations, "anno1", "val1");
+        assert.propertyVal(emittedMetricEvent.annotations, "anno2", "val2");
 
         assert.counter(emittedMetricEvent.counters.brandNew.getValues()[0], 0,
           "resetCounter didn't creat counter with value 0");
@@ -269,8 +258,6 @@ describe('TsdMetrics', function() {
 
   describe("Errors", function() {
     beforeEach(function() {
-      clearErrors();
-      tsd.init(metricsTestSinks);
       skipErrorValidation = true;
     });
     it('should report error on closing twice', function(done) {
@@ -329,16 +316,13 @@ describe('TsdMetrics', function() {
       m.startTimer();
       m.setGauge();
       m.setTimer();
-      m.annotate("bla")
+      m.addAnnotation("bla");
 
       assert.lengthOf(errorArr, 6, "unexpected count of errors");
       done();
     });
 
     it('should report error if a sink failed', function(done) {
-      var m = createMetrics();
-      var errMsg = "LOGGER ERROR";
-
       function FaultySink() {}
 
       util.inherits(FaultySink, tsd.Sink);
@@ -346,43 +330,22 @@ describe('TsdMetrics', function() {
       FaultySink.prototype.record = function(metricsEvent) {
         throw new Error(errMsg);
       };
-
-      tsd.init([new FaultySink()]);
+      metricsFactory = tsd.TsdMetricsFactory.buildInstance({
+        serviceName: "someService",
+        clusterName: "someCluster",
+        hostName: "someHost",
+        sinks: [new FaultySink()]});
+      var m = createMetrics();
+      var errMsg = "LOGGER ERROR";
 
       testCommon.print("close the metrics object");
       m.createCounter("TEST");
       m.close();
 
-      tsd.init(metricsTestSinks);
       assert.lengthOf(errorArr, 1, "unexpected count of errors");
       assert.include(errorArr[0].toString(), "FaultySink");
       assert.include(errorArr[0].toString(), errMsg);
 
-      done();
-    });
-
-    it('should report error correctly from sinks', function(done) {
-      var m = createMetrics();
-      var errMsg = "LOGGER ERROR";
-
-      function ErrorReportingSink() {}
-
-      util.inherits(ErrorReportingSink, tsd.Sink);
-
-      ErrorReportingSink.prototype.record = function(metricsEvent) {
-        throw new Error(errMsg);
-      };
-
-      tsd.init([new ErrorReportingSink()]);
-
-      testCommon.print("close the metrics object");
-      m.createCounter("TEST");
-      m.close();
-
-      tsd.init(metricsTestSinks);
-      assert.lengthOf(errorArr, 1, "unexpected count of errors");
-      assert.include(errorArr[0].toString(), "ErrorReportingSink");
-      assert.include(errorArr[0].toString(), errMsg);
       done();
     });
 
@@ -399,9 +362,8 @@ describe('TsdMetrics', function() {
     });
 
     it('should report error if OOP counters/timers incremented/stopped after close', function(done) {
-      var m = createMetrics(false);
+      var m = createMetrics();
 
-      tsd.init(metricsTestSinks);
       testCommon.print("close the metrics object");
       var timer = m.createTimer("TEST_TIMER");
       var counter = m.createCounter("TEST_COUNTER");
@@ -477,8 +439,8 @@ describe('TsdMetrics', function() {
         timer1.stop();
         m.close();
 
-        assert.property(emittedMetricEvent.annotations, "initTimestamp");
-        assert.property(emittedMetricEvent.annotations, "finalTimestamp");
+        assert.property(emittedMetricEvent, "start");
+        assert.property(emittedMetricEvent, "end");
 
         assert.counter(emittedMetricEvent.counters.hello.getValues()[0], helloCounterValue + 1,
           "increment counter happy case failed");

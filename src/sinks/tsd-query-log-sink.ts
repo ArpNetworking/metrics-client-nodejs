@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import _ = require("underscore");
+
 import tsdDef = require("tsdDef");
 import log4js = require("log4js");
 import utils = require("../utils");
@@ -72,29 +74,35 @@ export class TsdQueryLogSink implements tsdDef.Sink {
     private static stringify(metricsEvent:tsdDef.MetricsEvent):string {
         var transformedMetricsEvent = TsdQueryLogSink.transformMetricsEvent(metricsEvent);
 
-        return JSON.stringify(utils.stenofy(transformedMetricsEvent),
+        return JSON.stringify(utils.stenofy(transformedMetricsEvent, transformedMetricsEvent.annotations["_host"]),
             (key, value) => {
                 if (tsdSink.TsdSink.isMetricSample(value)) {
-                    return {
-                        value: (<tsdDef.MetricSample>value).getValue(),
-                        unit: (<tsdDef.MetricSample>value).getUnit()
+                    // TODO(matthayter): implement unit numerators & denominators
+                    var unit = (<tsdDef.MetricSample>value).getUnit();
+                    var sample:any = {
+                        value: (<tsdDef.MetricSample>value).getValue()
                     };
+                    if (unit != null) {
+                        sample.unitNumerators = [unit.name];
+                    }
+                    return sample
                 }
                 if (tsdSink.TsdSink.isMetricsList(value)) {
                     return {
                         values: (<tsdDef.MetricsList<tsdDef.MetricSample>>value).getValues()
                     };
                 }
-                if (key[0] !== "_") {
-                    return value;
-                }
+                return value;
             });
 
     }
 
     private static transformMetricsEvent(metricsEvent:tsdDef.MetricsEvent):any {
+        var annotations = _.clone(metricsEvent.annotations);
+        annotations["_start"] = metricsEvent.start.toISOString();
+        annotations["_end"] = metricsEvent.end.toISOString();
         var hash:any = {
-            annotations: metricsEvent.annotations
+            annotations: annotations
         };
 
         if (!utils.isEmptyObject(metricsEvent.counters)) {
@@ -109,7 +117,7 @@ export class TsdQueryLogSink implements tsdDef.Sink {
             hash.timers = metricsEvent.timers;
         }
 
-        hash.version = "2e";
+        hash.version = "2f";
         return hash;
     }
 }

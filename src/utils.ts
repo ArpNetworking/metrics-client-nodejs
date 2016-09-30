@@ -52,21 +52,19 @@ export function isEmptyObject(obj) {
  * Wraps a MetricsEvent object into a Steno envelope.
  *
  * @param {MetricsEvent} logEntry log entry to be enveloped.
+ * @param hostName The hostname associated with this metrics unit of work.
  * @returns {{time: string, name: string, level: string, data: tsdDef.MetricsEvent, id: string, context: {}}} the log entry
  * in Steno envelope
  * @ignore
  */
-export function stenofy(logEntry:tsdDef.MetricsEvent) {
-    var buffer = new Buffer(16);
-    uuid.v4(null, buffer, 0);
-
+export function stenofy(logEntry:tsdDef.MetricsEvent, hostName:string) {
     return {
         "time": new Date().toISOString(),
         "name": "aint.metrics",
         "level": "info",
         "data": logEntry,
-        "id": buffer.toString("base64"),
-        "context": {}
+        "context": {"host": hostName},
+        "id": uuid.v4()
     };
 }
 
