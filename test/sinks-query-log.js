@@ -23,7 +23,7 @@ var JaySchema = require("jayschema");
 var fs = require("fs");
 var path = require("path");
 
-var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-steno-schema-2g.json");
+var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-schema-2g.json");
 var TEST_LOGFILE_NAME = "test-tsd-query.log";
 
 if (fs.existsSync(TEST_LOGFILE_NAME)) {
@@ -45,7 +45,7 @@ before(function(done) {
 
         // Fetch query log schema
         request({
-            url: "https://raw.githubusercontent.com/PhoenixRion/metrics-client-doc/rion-2g/schema/query-log-schema-2g.json",
+            url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-schema-2g.json",
             json: true
         }, function(err, response, body) {
             if (err != null) {
@@ -199,7 +199,8 @@ describe('Query log sink', function () {
         m.close(); //serialization reports two errors
 
         validateSchema(deserializedEvent);
-        assert.property(deserializedEvent, "timestamp");
+        assert.property(deserializedEvent, "start");
+        assert.property(deserializedEvent, "end");
         assert.notProperty(deserializedEvent, "counters");
         assert.notProperty(deserializedEvent, "gauges");
         assert.property(deserializedEvent, "timers");

@@ -103,7 +103,8 @@ export class TsdQueryLogSink implements tsdDef.Sink {
             id: uuid.v4(),
             annotations: metricsEvent.annotations,
             dimensions: metricsEvent.dimensions,
-            timestamp: metricsEvent.end.toISOString()
+            start: metricsEvent.start.toISOString(),
+            end: metricsEvent.end.toISOString()
         };
 
 
