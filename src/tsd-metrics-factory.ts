@@ -38,6 +38,7 @@ import Options = options.Options;
  * @author Matthew Hayter (mhayter at groupon dot com)
  */
 export class TsdMetricsFactory implements tsdDef.MetricsFactory {
+    private static defaultHostResolver = new hostResolvers.DefaultHostResolver(os.hostname());
     private _serviceName:string;
     private _clusterName:string;
     private _hostResolver:tsdDef.HostResolver;
@@ -67,7 +68,7 @@ export class TsdMetricsFactory implements tsdDef.MetricsFactory {
             if (options.hostName != null) {
                 hostResolver = new hostResolvers.DefaultHostResolver(options.hostName)
             } else {
-                hostResolver = new hostResolvers.DefaultHostResolver(os.hostname());
+                hostResolver = TsdMetricsFactory.defaultHostResolver;
             }
         }
         if (sinks == null) {
@@ -99,7 +100,8 @@ export class TsdMetricsFactory implements tsdDef.MetricsFactory {
     }
 
     public create():tsdDef.Metrics {
-        return new TsdMetrics(this._serviceName, this._clusterName, this._hostResolver, this._sinks);
+        var hostname = this._hostResolver.getHostname();
+        return new TsdMetrics(this._serviceName, this._clusterName, hostname, this._sinks);
     }
 
     private static buildDefaultSink(directory) {
