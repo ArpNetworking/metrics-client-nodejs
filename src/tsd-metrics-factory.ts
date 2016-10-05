@@ -137,12 +137,12 @@ export class DefaultSinks {
      * Create a sink that outputs metrics data to the a file with standard tsd query format
      *
      * @method
-     * @param {string} filename The name of the query log file. Default: "tsd-query.log"
+     * @param {string} filename The name of the query log file. Default: "query.log"
      * @param {number} maxLogSize The maximums size of log in bytes before rolling a new file. Default: 33554432 (32 MB)
      * @param {number} backups The maximum number of log files backup to retain. Default: 10
      * @returns {QueryLogSink}
      */
-    public static createQueryLogSink(filename:string = "tsd-query.log", maxLogSize:number = 32 * 1024 * 1024, backups:number = 10):tsdDef.Sink {
+    public static createQueryLogSink(filename:string = Options.LOG_FILE_NAME, maxLogSize:number = Options.LOG_MAX_SIZE, backups:number = Options.LOG_BACKUPS):tsdDef.Sink {
         return log4jsSink.TsdQueryLogSink.createQueryLogger(filename, maxLogSize, backups);
     }
 

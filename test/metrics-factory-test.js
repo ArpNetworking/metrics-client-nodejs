@@ -92,7 +92,7 @@ describe('Metrics Factory', function () {
     });
 
     it("can be created with defaults via 'newInstance()", function(done) {
-        var defaultFilename = "./tsd-query.log";
+        var defaultFilename = "./query.log";
         // Remove the default query.log file on disk
         fs.unlink(defaultFilename, function(err) {
             // Ignore any error

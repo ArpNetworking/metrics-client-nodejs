@@ -35,12 +35,12 @@ export class Options {
      * Default: 20
      * @type {number}
      */
-    public static LOG_BACKUPS:number = 20;
+    public static LOG_BACKUPS:number = 24;
 
     /**
      * The name of the query log file
-     * Default: "tsd-query.log"
+     * Default: "query.log"
      * @type {string}
      */
-    public static LOG_FILE_NAME:string = "tsd-query.log";
+    public static LOG_FILE_NAME:string = "query.log";
 }

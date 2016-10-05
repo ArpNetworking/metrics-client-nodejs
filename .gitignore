@@ -1,7 +1,7 @@
 node_modules/
 coverage/
 
-tsd-query.log*
+query.log*
 test-tsd-query.log*
 npm-debug.log
 

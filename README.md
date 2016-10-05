@@ -40,7 +40,7 @@ The metrics library must be included before being used.
 mc = require("com.arpnetworking.metrics.metrics-client")
 ```
 
-This will write the metrics to file named ```tsd-query.log``` with rotation size of 32MB and retention of the last 10 logs
+This will write the metrics to file named ```query.log``` with rotation size of 32MB and retention of the last 10 logs
 
 Optionally, the client library may be configured by creating custom query log sink.
 
