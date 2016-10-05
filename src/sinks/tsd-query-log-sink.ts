@@ -74,7 +74,7 @@ export class TsdQueryLogSink implements tsdDef.Sink {
     private static stringify(metricsEvent:tsdDef.MetricsEvent):string {
         var transformedMetricsEvent = TsdQueryLogSink.transformMetricsEvent(metricsEvent);
 
-        return JSON.stringify(utils.stenofy(transformedMetricsEvent, transformedMetricsEvent.annotations["_host"]),
+        return JSON.stringify(utils.stenofy(transformedMetricsEvent, metricsEvent.annotations["_host"]),
             (key, value) => {
                 if (tsdSink.TsdSink.isMetricSample(value)) {
                     // TODO(matthayter): implement unit numerators & denominators
@@ -98,7 +98,7 @@ export class TsdQueryLogSink implements tsdDef.Sink {
     }
 
     private static transformMetricsEvent(metricsEvent:tsdDef.MetricsEvent):any {
-        var annotations = _.clone(metricsEvent.annotations);
+        var annotations = _.omit(metricsEvent.annotations, "_host");
         annotations["_start"] = metricsEvent.start.toISOString();
         annotations["_end"] = metricsEvent.end.toISOString();
         var hash:any = {
