@@ -65,9 +65,9 @@ export class TsdMetricsFactory implements tsdDef.MetricsFactory {
         }
         if (hostResolver == null) {
             if (options.hostName != null) {
-                hostResolver = new hostResolvers.StaticHostnameSupplier(options.hostName)
+                hostResolver = new hostResolvers.DefaultHostResolver(options.hostName)
             } else {
-                hostResolver = new hostResolvers.StaticHostnameSupplier(os.hostname());
+                hostResolver = new hostResolvers.DefaultHostResolver(os.hostname());
             }
         }
         if (sinks == null) {

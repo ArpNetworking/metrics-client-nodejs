@@ -22,7 +22,7 @@ import tsdDef = require("tsdDef");
  * @author Matthew Hayter (mhayter at groupon dot com)
  * @class
  */
-export class StaticHostnameSupplier implements tsdDef.HostResolver {
+export class DefaultHostResolver implements tsdDef.HostResolver {
     constructor(private _hostname:string){}
 
     public getHostname():string {
