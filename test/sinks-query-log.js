@@ -288,6 +288,25 @@ describe('Query log sink', function () {
         assert.isFalse(tsd.Sink.isMetricSample(emittedMetricEvent.counters.test.getValues()));
         done();
     });
+
+    it("should output dimensions", function() {
+
+        var m = createMetrics();
+
+        m.addDimension("endpoint", "users");
+
+        var deserializedEvent = undefined;
+        sinkSniffer(function (serializedEvent) {
+            deserializedEvent = JSON.parse(serializedEvent);
+        });
+        m.close();
+
+        validateSchema(deserializedEvent);
+
+        assert.property(deserializedEvent, "dimensions");
+        assert.propertyVal(deserializedEvent.dimensions, "endpoint", "users");
+
+    })
 });
 
 describe('Console log sink', function () {
