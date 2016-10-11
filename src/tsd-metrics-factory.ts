@@ -38,7 +38,7 @@ import Options = options.Options;
  * @author Matthew Hayter (mhayter at groupon dot com)
  */
 export class TsdMetricsFactory implements tsdDef.MetricsFactory {
-    private static defaultHostResolver = new hostResolvers.DefaultHostResolver(os.hostname());
+    private static defaultHostResolver = new hostResolvers.DefaultHostResolver();
     private _serviceName:string;
     private _clusterName:string;
     private _hostResolver:tsdDef.HostResolver;
@@ -66,7 +66,7 @@ export class TsdMetricsFactory implements tsdDef.MetricsFactory {
         }
         if (hostResolver == null) {
             if (options.hostName != null) {
-                hostResolver = new hostResolvers.DefaultHostResolver(options.hostName)
+                hostResolver = new hostResolvers.StaticHostResolver(options.hostName)
             } else {
                 hostResolver = TsdMetricsFactory.defaultHostResolver;
             }

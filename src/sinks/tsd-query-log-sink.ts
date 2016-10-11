@@ -34,6 +34,7 @@ export class TsdQueryLogSink implements tsdDef.Sink {
     private logger:log4js.Logger;
 
     public static createQueryLogger(filename:string, maxLogSize:number, backups:number) {
+        // TODO(mhayter): Add time-based log rolling.
         var appendersArray:any[] = [
             {
                 type: "file",

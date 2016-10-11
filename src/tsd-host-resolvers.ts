@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import os = require("os");
 
 import tsdDef = require("tsdDef");
 
@@ -23,6 +24,18 @@ import tsdDef = require("tsdDef");
  * @class
  */
 export class DefaultHostResolver implements tsdDef.HostResolver {
+    public getHostname():string {
+        return os.hostname();
+    }
+}
+
+/**
+ * Provides an unchanging hostname.
+ *
+ * @author Matthew Hayter (mhayter at groupon dot com)
+ * @class
+ */
+export class StaticHostResolver implements tsdDef.HostResolver {
     constructor(private _hostname:string){}
 
     public getHostname():string {
