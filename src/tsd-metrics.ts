@@ -93,9 +93,9 @@ export class TsdMetrics implements tsdDef.Metrics {
      */
     constructor(serviceName:string, clusterName:string, hostname:string, sinks:tsdDef.Sink[]) {
         this._sinks = sinks;
-        this.addDimension("_service", serviceName);
-        this.addDimension("_cluster", clusterName);
-        this.addDimension("_host", hostname);
+        this.addDimension("service", serviceName);
+        this.addDimension("cluster", clusterName);
+        this.addDimension("host", hostname);
         // `new Date()` gets the current time as a Date object.
         this._metricsEvent.start = new Date();
     }
