@@ -23,7 +23,7 @@ var JaySchema = require("jayschema");
 var fs = require("fs");
 var path = require("path");
 
-var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-schema-2e.json");
+var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-steno-schema-2f.json");
 var TEST_LOGFILE_NAME = "test-tsd-query.log";
 
 if (fs.existsSync(TEST_LOGFILE_NAME)) {
@@ -45,7 +45,7 @@ before(function(done) {
 
         // Fetch query log schema
         request({
-            url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-schema-2e.json",
+            url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-steno-schema-2f.json",
             json: true
         }, function(err, response, body) {
             if (err != null) {
@@ -87,13 +87,18 @@ if (testCommon.verbose) {
     testSinks.push(tsd.Sinks.createConsoleSink());
 }
 
+var metricsFactory = null;
+
 function createMetrics() {
-    return new tsd.TsdMetrics();
+    return metricsFactory.create();
 }
 
 function validateSchema(jsonObject) {
     var schemaValidation = schemaValidator.validate(jsonObject, log_schema);
-    assert.lengthOf(schemaValidation, 0, "Schema Validation failed: " + JSON.stringify(schemaValidation));
+    if (schemaValidation.length > 0 ) {
+        console.log(JSON.stringify(jsonObject, null, "  "));
+    }
+    assert.lengthOf(schemaValidation, 0, "Schema Validation failed: " + JSON.stringify(schemaValidation, null, "  "));
 }
 
 describe('Query log sink', function () {
@@ -111,13 +116,17 @@ describe('Query log sink', function () {
 
     beforeEach(function () {
         clearErrors();
-        tsd.init(testSinks.concat([queryLogSink]));
+        metricsFactory = tsd.TsdMetricsFactory.buildInstance({
+            serviceName: "someService",
+            clusterName: "someCluster",
+            hostName: "someHost",
+            sinks: testSinks.concat([queryLogSink])});
     });
 
     afterEach(function () {
         if (!skipErrorValidation) {
             if (errorArr.length > 0) {
-                this.test.error(new Error("Errors reported when non is expected.\n" + errorArr.toString()));
+                this.test.error(new Error("Errors reported when none were expected.\n" + errorArr.toString()));
             }
         }
     });
@@ -132,7 +141,7 @@ describe('Query log sink', function () {
 
         var m = createMetrics();
 
-        m.annotate(customAnnotation, customAnnotation);
+        m.addAnnotation(customAnnotation, customAnnotation);
         m.startTimer("timer1");
         m.incrementCounter("hello", helloCounter);
         m.incrementCounter("hello");
@@ -158,8 +167,6 @@ describe('Query log sink', function () {
             m.close();
             validateSchema(deserializedEvent);
 
-            assert.property(deserializedEvent.data.annotations, "initTimestamp");
-            assert.property(deserializedEvent.data.annotations, "finalTimestamp");
             assert.property(deserializedEvent.data.annotations, customAnnotation);
 
             assert.equal(deserializedEvent.data.counters.brandNew.values[0].value, 0,
@@ -176,7 +183,7 @@ describe('Query log sink', function () {
                 "log.timers.timer1.values[0] >= 750");
             assert.equal(deserializedEvent.data.timers.customTimer.values[0].value, ct0,
                 "setTimer failed to set the correct time duration");
-            assert.equal(deserializedEvent.data.timers.customTimer.values[0].unit, "millisecond",
+            assert.equal(deserializedEvent.data.timers.customTimer.values[0].unitNumerators[0], "millisecond",
                 "setTimer failed to set the correct time unit");
             done();
         }, 750);
@@ -195,8 +202,8 @@ describe('Query log sink', function () {
         m.close(); //serialization reports two errors
 
         validateSchema(deserializedEvent);
-        assert.property(deserializedEvent.data.annotations, "initTimestamp");
-        assert.property(deserializedEvent.data.annotations, "finalTimestamp");
+        assert.property(deserializedEvent.data.annotations, "_start");
+        assert.property(deserializedEvent.data.annotations, "_end");
         assert.notProperty(deserializedEvent.data, "counters");
         assert.notProperty(deserializedEvent.data, "gauges");
         assert.property(deserializedEvent.data, "timers");
@@ -253,8 +260,6 @@ describe('Query log sink', function () {
         m.close();
 
         validateSchema(deserializedEvent);
-        assert.property(deserializedEvent.data.annotations, "initTimestamp");
-        assert.property(deserializedEvent.data.annotations, "finalTimestamp");
         assert.notProperty(deserializedEvent.data, "counters");
         assert.notProperty(deserializedEvent.data, "gauges");
         assert.notProperty(deserializedEvent.data, "timers");
@@ -270,7 +275,11 @@ describe('Query log sink', function () {
         TestSink.prototype.record = function (metricsEvent) {
             emittedMetricEvent = metricsEvent;
         };
-        tsd.init(testSinks.concat([new TestSink()]));
+        metricsFactory = tsd.TsdMetricsFactory.buildInstance({
+            serviceName: "someService",
+            clusterName: "someCluster",
+            hostName: "someHost",
+            sinks: testSinks.concat([new TestSink()])});
         var m = createMetrics();
         m.incrementCounter("test");
         m.close();
@@ -307,13 +316,17 @@ describe('Console log sink', function () {
 
     beforeEach(function () {
         clearErrors();
-        tsd.init(testSinks.concat([new TestSink(), consoleLogSink]));
+        metricsFactory = tsd.TsdMetricsFactory.buildInstance({
+            serviceName: "someService",
+            clusterName: "someCluster",
+            hostName: "someHost",
+            sinks: testSinks.concat([new TestSink(), consoleLogSink])});
     });
 
     afterEach(function () {
         if (!skipErrorValidation) {
             if (errorArr.length > 0) {
-                this.test.error(new Error("Errors reported when non is expected.\n" + errorArr.toString()));
+                this.test.error(new Error("Errors reported when none were expected.\n" + errorArr.toString()));
             }
         }
     });
@@ -328,7 +341,7 @@ describe('Console log sink', function () {
 
         var m = createMetrics();
 
-        m.annotate(customAnnotation, customAnnotation);
+        m.addAnnotation(customAnnotation, customAnnotation);
         m.startTimer("timer1");
         m.incrementCounter("hello", helloCounter);
         m.incrementCounter("hello");

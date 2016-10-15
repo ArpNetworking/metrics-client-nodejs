@@ -42,6 +42,20 @@ declare module "tsdDef" {
     }
 
     /**
+     * Interface for classes which create <code>Metrics</code> instances. Clients
+     * should create a single instance of an implementing class for the entire
+     * life of the application.
+     *
+     * @author Matthew Hayter (mhayter at groupon dot com)
+     */
+    export interface MetricsFactory {
+        /**
+         * Create an instance of <code>Metrics</code>.
+         */
+        create(): Metrics
+    }
+
+    /**
      * Interface for logging metrics: timers, counters and gauges for TSD Aggregator
      *
      * @author Mohammed Kamel (mkamel at groupon dot com)
@@ -151,7 +165,14 @@ declare module "tsdDef" {
          * @param key The name of the attribute.
          * @param value The value of the attribute.
          */
-        annotate(key:string, value:string): void;
+        addAnnotation(key:string, value:string): void;
+
+        /**
+         * Add a set of attributes that describes the captured metrics or context.
+         *
+         * @param annotations The string-string pairs that represent the annotations.
+         */
+        addAnnotations(annotations: {[key: string]: string}): void;
 
         /**
          * Close the metrics object. This should complete publication of metrics to
@@ -296,29 +317,37 @@ declare module "tsdDef" {
      */
     export interface MetricsEvent {
         /**
-         * The annotations represented as hash of arrays indexed by annotation name.
-         * @type {{Object.<string, MetricsList>}}
+         * The start time of the MetricsEvent. Typically interpreted as the lower bound (earliest) of the period during which the metrics
+         * were collected.
          */
-        annotations:{[name:string]: string};
+        start:Date;
+
+        /**
+         * The end time of the MetricsEvent. Typically interpreted as the upper bound (latest) of the period during which the metrics were
+         * collected.
+         */
+        end:Date;
+
+        /**
+         * The annotations represented as a string:string map.
+         */
+        annotations:{[annotationName: string]: string};
 
         /**
          * Counters and their samples recorded represented as hash of counter name to
          * [MetricSample]{@linkcode MetricSample}
-         * @type {{Object.<string, MetricsList>}}
          */
         counters:{[name:string]: MetricsList<MetricSample>};
 
         /**
          * Gauges and their samples recorded represented as hash of counter name to
          * [MetricSample]{@linkcode MetricSample}
-         * @type {{Object.<string, MetricsList>}}
          */
         gauges:{[name:string]: MetricsList<MetricSample>};
 
         /**
          * Timers and their samples recorded represented as hash of counter name to
          * [MetricSample]{@linkcode MetricSample}
-         * @type {{Object.<string, MetricsList>}}
          */
         timers:{[name:string]: MetricsList<MetricSample>};
     }
@@ -358,5 +387,17 @@ declare module "tsdDef" {
          * @param metricsEvent metrics event to be recorded by the sync.
          */
         record(metricsEvent:MetricsEvent): void;
+    }
+
+    /**
+     * Interface for strategies to supply the hostname to the <code>MetricsFactory</code> instance.
+     *
+     * @author Matthew Hayter (mhayter at groupon dot com)
+     */
+    export interface HostResolver {
+        /**
+         * Get the hostname of the local host.
+         */
+        getHostname():string;
     }
 }

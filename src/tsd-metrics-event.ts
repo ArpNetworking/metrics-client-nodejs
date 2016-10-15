@@ -45,12 +45,28 @@ import Lazy = utils.Lazy;
 export class TsdMetricsEvent implements tsdDef.MetricsEvent {
 
     /**
-     * The annotations represented as hash of arrays indexed by annotation name.
+     * The start time of the MetricsEvent. Typically interpreted as the lower bound (earliest) of the period during which the metrics
+     * were collected.
+     *
+     * @memberof! MetricsEvent#
+     */
+    start:Date = null;
+
+    /**
+     * The end time of the MetricsEvent. Typically interpreted as the upper bound (latest) of the period during which the metrics were
+     * collected.
+     *
+     * @memberof! MetricsEvent#
+     */
+    end:Date = null;
+
+    /**
+     * The annotations represented as a string:string map.
      *
      * @memberof! MetricsEvent#
      * @type {Object.<string, string>}
      */
-    public annotations:{[name:string]: string} = {};
+    public annotations:{[annotationName: string]: string} = {};
 
     /**
      * Counters and their samples recorded represented as hash of counter name to
