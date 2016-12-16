@@ -15,7 +15,7 @@
  */
 
 import tsdDef = require("tsdDef");
-import uuid = require('node-uuid');
+import uuid = require('uuid');
 
 /**
  * Get the current time in nanoseconds.

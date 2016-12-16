@@ -46,7 +46,7 @@ interface UUID {
     v4(options?: UUIDOptions, buffer?: Buffer, offset?: number): string
 }
 
-declare module "node-uuid" {
+declare module "uuid" {
     var uuid: UUID;
     export = uuid;
 }
