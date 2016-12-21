@@ -15,6 +15,7 @@
  */
 
 import _ = require("underscore");
+import uuid = require('node-uuid');
 
 import tsdDef = require("tsdDef");
 import log4js = require("log4js");
@@ -75,7 +76,7 @@ export class TsdQueryLogSink implements tsdDef.Sink {
     private static stringify(metricsEvent:tsdDef.MetricsEvent):string {
         var transformedMetricsEvent = TsdQueryLogSink.transformMetricsEvent(metricsEvent);
 
-        return JSON.stringify(utils.stenofy(transformedMetricsEvent, metricsEvent.annotations["_host"]),
+        return JSON.stringify(transformedMetricsEvent,
             (key, value) => {
                 if (tsdSink.TsdSink.isMetricSample(value)) {
                     // TODO(matthayter): implement unit numerators & denominators
@@ -99,12 +100,14 @@ export class TsdQueryLogSink implements tsdDef.Sink {
     }
 
     private static transformMetricsEvent(metricsEvent:tsdDef.MetricsEvent):any {
-        var annotations = _.omit(metricsEvent.annotations, "_host");
-        annotations["_start"] = metricsEvent.start.toISOString();
-        annotations["_end"] = metricsEvent.end.toISOString();
         var hash:any = {
-            annotations: annotations
+            id: uuid.v4(),
+            annotations: metricsEvent.annotations,
+            dimensions: metricsEvent.dimensions,
+            start: metricsEvent.start.toISOString(),
+            end: metricsEvent.end.toISOString()
         };
+
 
         if (!utils.isEmptyObject(metricsEvent.counters)) {
             hash.counters = metricsEvent.counters;
@@ -118,7 +121,7 @@ export class TsdQueryLogSink implements tsdDef.Sink {
             hash.timers = metricsEvent.timers;
         }
 
-        hash.version = "2f";
+        hash.version = "2g";
         return hash;
     }
 }

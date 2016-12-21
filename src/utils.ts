@@ -29,16 +29,6 @@ export function getNanoTime() {
 }
 
 /**
- * Get the current time in milliseconds.
- *
- * @ignore
- * @returns {number} current time in millisecond.
- */
-export function getMilliTime() {
-    return getNanoTime() / 1e6;
-}
-
-/**
  * Determines if an object has not properties defined.
  *
  * @ignore
@@ -46,26 +36,6 @@ export function getMilliTime() {
  */
 export function isEmptyObject(obj) {
     return !Object.keys(obj).length;
-}
-
-/**
- * Wraps a MetricsEvent object into a Steno envelope.
- *
- * @param {MetricsEvent} logEntry log entry to be enveloped.
- * @param hostName The hostname associated with this metrics unit of work.
- * @returns {{time: string, name: string, level: string, data: tsdDef.MetricsEvent, id: string, context: {}}} the log entry
- * in Steno envelope
- * @ignore
- */
-export function stenofy(logEntry:tsdDef.MetricsEvent, hostName:string) {
-    return {
-        "time": new Date().toISOString(),
-        "name": "aint.metrics",
-        "level": "info",
-        "data": logEntry,
-        "context": {"host": hostName},
-        "id": uuid.v4()
-    };
 }
 
 /* istanbul ignore next */ //The class is not currently used.

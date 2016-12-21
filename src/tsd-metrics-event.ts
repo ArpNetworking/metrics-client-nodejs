@@ -64,16 +64,21 @@ export class TsdMetricsEvent implements tsdDef.MetricsEvent {
      * The annotations represented as a string:string map.
      *
      * @memberof! MetricsEvent#
-     * @type {Object.<string, string>}
      */
     public annotations:{[annotationName: string]: string} = {};
+
+    /**
+     * The associated dimensions represented as a string:string map.
+     *
+     * @memberof! MetricsEvent#
+     */
+    public dimensions:tsdDef.Dimensions2G = <tsdDef.Dimensions2G>{};
 
     /**
      * Counters and their samples recorded represented as hash of counter name to
      * [MetricSample]{@linkcode MetricSample}
      *
      * @memberof! MetricsEvent#
-     * @type {Object.<string, MetricsList<MetricSample>>}
      */
     public counters:{[name:string]: tsdDef.MetricsList<tsdDef.MetricSample>} = {};
 
@@ -82,7 +87,6 @@ export class TsdMetricsEvent implements tsdDef.MetricsEvent {
      * [MetricSample]{@linkcode MetricSample}
      *
      * @memberof! MetricsEvent#
-     * @type {Object.<string, MetricsList<MetricSample>>}
      */
     public gauges:{[name:string]: tsdDef.MetricsList<tsdDef.MetricSample>} = {};
 
@@ -91,7 +95,6 @@ export class TsdMetricsEvent implements tsdDef.MetricsEvent {
      * [Timer]{@linkcode Timer}
      *
      * @memberof! MetricsEvent#
-     * @type {Object.<string, MetricsList<Timer>>}
      */
     public timers:{[name:string]: tsdDef.MetricsList<tsdDef.Timer>} = {};
 }

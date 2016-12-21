@@ -29,7 +29,7 @@ import warningSink = require("./sinks/tsd-warning-sink");
 import hostResolvers = require("./tsd-host-resolvers");
 
 import TsdMetrics = tsdMetrics.TsdMetrics;
-import Options = options.Options;
+import DefaultOptions = options.Options;
 
 /**
  * Factory pattern for creating and configuring instances of Metrics.
@@ -106,9 +106,9 @@ export class TsdMetricsFactory implements tsdDef.MetricsFactory {
 
     private static buildDefaultSink(directory) {
         return DefaultSinks.createQueryLogSink(
-            path.join(directory, Options.LOG_FILE_NAME),
-            Options.LOG_MAX_SIZE,
-            Options.LOG_BACKUPS);
+            path.join(directory, DefaultOptions.LOG_FILE_NAME),
+            DefaultOptions.LOG_MAX_SIZE,
+            DefaultOptions.LOG_BACKUPS);
     }
 
     /*
@@ -144,7 +144,7 @@ export class DefaultSinks {
      * @param {number} backups The maximum number of log files backup to retain. Default: 10
      * @returns {QueryLogSink}
      */
-    public static createQueryLogSink(filename:string = Options.LOG_FILE_NAME, maxLogSize:number = Options.LOG_MAX_SIZE, backups:number = Options.LOG_BACKUPS):tsdDef.Sink {
+    public static createQueryLogSink(filename:string = DefaultOptions.LOG_FILE_NAME, maxLogSize:number = DefaultOptions.LOG_MAX_SIZE, backups:number = DefaultOptions.LOG_BACKUPS):tsdDef.Sink {
         return log4jsSink.TsdQueryLogSink.createQueryLogger(filename, maxLogSize, backups);
     }
 

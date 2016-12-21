@@ -23,7 +23,7 @@ var JaySchema = require("jayschema");
 var fs = require("fs");
 var path = require("path");
 
-var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-steno-schema-2f.json");
+var SCHEMA_CACHE_PATH = path.join(__dirname, "..", "lib", "query-log-schema-2g.json");
 var TEST_LOGFILE_NAME = "test-tsd-query.log";
 
 if (fs.existsSync(TEST_LOGFILE_NAME)) {
@@ -45,7 +45,7 @@ before(function(done) {
 
         // Fetch query log schema
         request({
-            url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-steno-schema-2f.json",
+            url: "https://raw.githubusercontent.com/ArpNetworking/metrics-client-doc/master/schema/query-log-schema-2g.json",
             json: true
         }, function(err, response, body) {
             if (err != null) {
@@ -103,9 +103,6 @@ function validateSchema(jsonObject) {
 
 describe('Query log sink', function () {
     var queryLogSink = tsd.Sinks.createQueryLogSink(TEST_LOGFILE_NAME, 1000, 2);
-
-    //let's sniff the wire
-    var originalInfo = queryLogSink.logger.info;
 
     function sinkSniffer(replacement) {
         queryLogSink.logger.info = function (serializedEvent) {
@@ -167,23 +164,23 @@ describe('Query log sink', function () {
             m.close();
             validateSchema(deserializedEvent);
 
-            assert.property(deserializedEvent.data.annotations, customAnnotation);
+            assert.property(deserializedEvent.annotations, customAnnotation);
 
-            assert.equal(deserializedEvent.data.counters.brandNew.values[0].value, 0,
+            assert.equal(deserializedEvent.counters.brandNew.values[0].value, 0,
                 "resetCounter didn't create counter with value 0");
-            assert.equal(deserializedEvent.data.counters.hello.values[0].value, helloCounter + 1,
+            assert.equal(deserializedEvent.counters.hello.values[0].value, helloCounter + 1,
                 "increment counter happy case failed");
-            assert.equal(deserializedEvent.data.counters.world.values[0].value, -1,
+            assert.equal(deserializedEvent.counters.world.values[0].value, -1,
                 "decrement counter happy case failed");
-            assert.equal(deserializedEvent.data.counters.world.values[1].value, -worldCounter,
+            assert.equal(deserializedEvent.counters.world.values[1].value, -worldCounter,
                 "decrement additional sample failed");
-            assert.equal(deserializedEvent.data.gauges.gg.values[0].value, gg0, "setting gauge failed");
-            assert.equal(deserializedEvent.data.gauges.gg.values[1].value, gg1, "setting additional guage failed");
-            assert.timerValue(deserializedEvent.data.timers.timer1.values[0].value, 750,
+            assert.equal(deserializedEvent.gauges.gg.values[0].value, gg0, "setting gauge failed");
+            assert.equal(deserializedEvent.gauges.gg.values[1].value, gg1, "setting additional guage failed");
+            assert.timerValue(deserializedEvent.timers.timer1.values[0].value, 750,
                 "log.timers.timer1.values[0] >= 750");
-            assert.equal(deserializedEvent.data.timers.customTimer.values[0].value, ct0,
+            assert.equal(deserializedEvent.timers.customTimer.values[0].value, ct0,
                 "setTimer failed to set the correct time duration");
-            assert.equal(deserializedEvent.data.timers.customTimer.values[0].unitNumerators[0], "millisecond",
+            assert.equal(deserializedEvent.timers.customTimer.values[0].unitNumerators[0], "millisecond",
                 "setTimer failed to set the correct time unit");
             done();
         }, 750);
@@ -202,13 +199,13 @@ describe('Query log sink', function () {
         m.close(); //serialization reports two errors
 
         validateSchema(deserializedEvent);
-        assert.property(deserializedEvent.data.annotations, "_start");
-        assert.property(deserializedEvent.data.annotations, "_end");
-        assert.notProperty(deserializedEvent.data, "counters");
-        assert.notProperty(deserializedEvent.data, "gauges");
-        assert.property(deserializedEvent.data, "timers");
-        assert.lengthOf(deserializedEvent.data.timers.TIMER1.values, 0);
-        assert.lengthOf(deserializedEvent.data.timers.Timer2.values, 0);
+        assert.property(deserializedEvent, "start");
+        assert.property(deserializedEvent, "end");
+        assert.notProperty(deserializedEvent, "counters");
+        assert.notProperty(deserializedEvent, "gauges");
+        assert.property(deserializedEvent, "timers");
+        assert.lengthOf(deserializedEvent.timers.TIMER1.values, 0);
+        assert.lengthOf(deserializedEvent.timers.Timer2.values, 0);
 
         assert.lengthOf(errorArr, 2, "unexpected count of errors");
 
@@ -241,8 +238,8 @@ describe('Query log sink', function () {
         setTimeout(function () {
             testCommon.print("close (timer 3 is not auto stopped)");
             m.close();
-            assert.lengthOf(deserializedEvent.data.timers.timer1.values, 1, "non stopped timer sample was emitted");
-            assert.lengthOf(deserializedEvent.data.timers.timer2.values, 0, "timer 2 was auto stopped when not expected to");
+            assert.lengthOf(deserializedEvent.timers.timer1.values, 1, "non stopped timer sample was emitted");
+            assert.lengthOf(deserializedEvent.timers.timer2.values, 0, "timer 2 was auto stopped when not expected to");
 
             assert.lengthOf(errorArr, 3, "unexpected count of errors. Errors dump: " + errorArr.toString());
             done();
@@ -260,9 +257,9 @@ describe('Query log sink', function () {
         m.close();
 
         validateSchema(deserializedEvent);
-        assert.notProperty(deserializedEvent.data, "counters");
-        assert.notProperty(deserializedEvent.data, "gauges");
-        assert.notProperty(deserializedEvent.data, "timers");
+        assert.notProperty(deserializedEvent, "counters");
+        assert.notProperty(deserializedEvent, "gauges");
+        assert.notProperty(deserializedEvent, "timers");
         done();
     });
 
@@ -291,6 +288,25 @@ describe('Query log sink', function () {
         assert.isFalse(tsd.Sink.isMetricSample(emittedMetricEvent.counters.test.getValues()));
         done();
     });
+
+    it("should output dimensions", function() {
+
+        var m = createMetrics();
+
+        m.addDimension("endpoint", "users");
+
+        var deserializedEvent = undefined;
+        sinkSniffer(function (serializedEvent) {
+            deserializedEvent = JSON.parse(serializedEvent);
+        });
+        m.close();
+
+        validateSchema(deserializedEvent);
+
+        assert.property(deserializedEvent, "dimensions");
+        assert.propertyVal(deserializedEvent.dimensions, "endpoint", "users");
+
+    })
 });
 
 describe('Console log sink', function () {
